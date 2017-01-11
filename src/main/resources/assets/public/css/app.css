@@ -1,0 +1,215 @@
+
+body {
+    /*background-color:#838487;*/
+    background-color:#92B6D5;
+    /*width: 99%;*/
+}
+
+
+#workContainer {
+    top: 66px;
+    bottom: 5px;
+    left: 3px;
+    right: 3px;
+    position: absolute;
+    /*background: #999999;*/
+    background: white;
+    /*
+      margin: auto;
+      width: 50%;
+      border: 3px solid green;
+      padding: 10px;
+    *
+    */
+}
+
+#graphContainer {
+    top: 2px;
+    bottom: 5px;
+    left: 2px;
+    right: 2px;
+    position: absolute;
+    background: white;
+    /*width: 99%;*/
+    height: 99%;
+    /*
+      margin: auto;
+      width: 50%;
+      border: 3px solid green;
+      padding: 10px;
+    *
+    */
+    /*z-index: 500;*/
+}
+
+.gc-s {
+    /*position:absolute;*/
+    /*visibility: hidden;*/
+    /*border: 2px solid gray;*/
+    /*padding: 10px;*/
+    display: inline-block;
+    /*width: 500px;*/
+    /*height: 200px;*/
+    width: 45%;
+    height: 40%;
+    margin: 3px;
+    /*margin: auto 2%;*/
+    border: 3px solid #92B6D5;
+    background: floralwhite;
+    overflow: hidden;
+}
+
+.gc-s > div {
+    /*background: white;*/
+    width: 99%;
+    height: 90%;
+}
+
+#status-pane {
+    /*top: 30px;*/
+    bottom: 5px;
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    background-color: rgb(249, 247, 237);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    vertical-align: top;
+    opacity:0.6;
+    z-index: 9999;
+}
+#status-pane #statusBox {
+    width: 100%;
+    /*left: 2px;*/
+    /*right: 30px;*/
+    height: 85px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 1px solid #4C6A92;
+    border-radius: 4px;
+    color: black;
+    background-color: #f8f8f8;
+    font-size: 12px;
+    resize: none;
+    /*overflow: scroll;*/
+}
+
+#status-pane h3 {
+    position: absolute;;
+    right: 10px;
+    bottom: 0px;
+    text-align: right;
+}
+
+#model-graph {
+    /*top: 30px;*/
+    position: absolute;
+    bottom: 125px;
+    right: 30px;
+    opacity:0.8;
+    z-index: 9999;
+}
+
+#documents-btn {
+    /*top: 30px;*/
+    position: absolute;
+    bottom: 125px;
+    right: 10px;
+    opacity:0.8;
+    z-index: 9999;
+}
+
+#graph-btn {
+    /*top: 30px;*/
+    position: absolute;
+    bottom: 95px;
+    right: 10px;
+    opacity:0.8;
+    z-index: 9999;
+}
+
+#options-btn-set {
+    position: absolute;
+    /*top: 60px;*/
+    right: 5px;
+    /*width: 5%;*/
+    /*hight: 4%;*/
+    opacity: 0.8;
+    vertical-align: text-top;
+    margin: 2px 2px;
+    z-index: 9999;
+}
+
+#options-btn-set img {
+    margin: 5px 5px;
+    cursor: pointer;
+}
+
+.locateGroup .locateHover {
+    display: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+}
+.locateGroup:hover .locateHover {
+    display: block;
+    /*top: 2px;*/
+    /*bottom: 10px;*/
+    right: 10px;
+    position: absolute;
+    width: 140px;
+    background-color: rgb(249, 247, 237);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    opacity:0.8;
+}
+
+.tableGroup .tableHover {
+    display: none;
+}
+.tableGroup:hover .tableHover {
+    display: block;
+    /*top: 2px;*/
+    /*bottom: 10px;*/
+    right: 10px;
+    position: absolute;
+    width: 400px;
+    background-color: rgb(249, 247, 237);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    opacity:0.8;
+}
+
+.floating-box {
+    display: inline-block;
+    width: 150px;
+    height: 75px;
+    margin: 10px;
+    border: 3px solid #73AD21;
+}
+
+
+table {
+    font-family: arial, sans-serif;
+    font-size:12px;
+    border-collapse: collapse;
+    width: 100%;
+}
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 4px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-drag: none;
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -khtml-user-drag: none;
+  -moz-user-select: none; /* Firefox */
+  -moz-user-drag:none;
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
