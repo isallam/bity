@@ -6,8 +6,11 @@
 package com.objy.se.ingest;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +33,41 @@ public class BitcoinIngester {
 
     public static void main(String[] args)
     {
+      if (args.length <= 0) {
+        System.out.println("Params missing: <blocks dire path>");
+        return;
+      }
+      String blocksPath = args[0];
+      
       NetworkParameters np = new MainNetParams();
       Context ctx = Context.getOrCreate(np);
       
-      List<File> blockChainFiles = new ArrayList<>();
-      for (int i = 0; i < 10; i++)
-      {
-        String blockFileName = "blk0000" + i + ".dat";
-        blockChainFiles.add(new File("/home/ibrahim/.bitcoin/blocks/"+blockFileName));
+      File blocksFolder = new File(blocksPath);
+      File[] listOfFiles = blocksFolder.listFiles(
+              new FilenameFilter() {
+                  @Override
+                  public boolean accept(File dir, String name) {
+                      return name.matches("blk.*.dat");
+                  }
+              });
+      Arrays.sort(listOfFiles);
+      
+      try {
+        if (blocksFolder == null || listOfFiles == null) {
+          System.out.println("Failed to find data in '" + blocksFolder.getCanonicalPath() + "'");
+          System.out.println("... nothing to do... exiting.");
+          return;
+        }
+        for (File f : listOfFiles) {
+          System.out.println("File: '" + f.getName() + "'");
+        }
+      } catch (IOException ioEx) {
+        System.out.println(ioEx.getMessage());
+        return;
       }
+
+      List<File> blockChainFiles = Arrays.asList(listOfFiles);
+
       BlockFileLoader bfl = new BlockFileLoader(np, blockChainFiles);
 
       // Data structures to keep the statistics.
@@ -49,8 +78,9 @@ public class BitcoinIngester {
       int numTransaction = 0;
       int numInput = 0;
       int numOutput = 0;
+      long startTimeTotal = 0;
+      long startTime = startTimeTotal = System.currentTimeMillis();
       
-      long startTime = System.currentTimeMillis();
       // Iterate over the blocks in the dataset.
       for (Block block : bfl) {
         //System.out.println("BLOCK: " + block.toString());
@@ -89,8 +119,9 @@ public class BitcoinIngester {
           startTime = System.currentTimeMillis();
         }
       }
-      
-      System.out.println("# Blocks: " + numBlock + "- # Transacions: " + numTransaction);
+      long diffTimeTotal = System.currentTimeMillis() - startTimeTotal;
+      System.out.println("\n Total Time: " + diffTimeTotal / 1000.0 + " sec.");
+      System.out.println("# Blocks: " + numBlock + " - # Transacions: " + numTransaction);
       System.out.println("# Inputs: " + numInput + " - # Outputs: " + numOutput);
     	
     }  

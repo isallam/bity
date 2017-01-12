@@ -12,6 +12,7 @@ ext{
     fddirhost      =   project.hasProperty('fddirhost')        ?   project.getProperty('fddirhost')        :   java.net.InetAddress.getLocalHost().getHostName();
     fddirpath      =   project.hasProperty('fddirpath')        ?   project.getProperty('fddirpath')        :   projectPath  + File.separator + '../blockparser/data' + File.separator
     objydbcorepath =   "${thingspanhome}${File.separator}lib${File.separator}"
+    UserHomeDir    =   System.getProperty("user.home")
 }	
 //=======Overwriting default arguments provided by the respective tasks===========
 mainClassName = 'com.objy.se.query.QueryServer'
@@ -86,6 +87,7 @@ task runIngester(type: JavaExec, dependsOn: ['build', 'fatJar']){
 	classpath = sourceSets.main.runtimeClasspath
 	standardInput = System.in
 	main = 'com.objy.se.ingest.BitcoinIngester'
-	args '-bootfile',"${fddirhost}::${fddirpath}${fdname}.boot"
+	args "${UserHomeDir}/.bitcoin/blocks", \
+        '-bootfile',"${fddirhost}::${fddirpath}${fdname}.boot"
 }
 
