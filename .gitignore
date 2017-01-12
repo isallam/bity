@@ -8,3 +8,6 @@
 /data/*.JNL
 /logs/
 /nbproject/
+.gradle/
+.nb-gradle/
+

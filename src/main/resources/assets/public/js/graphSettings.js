@@ -9,7 +9,7 @@ var graphSettings = {
     
     minEdgeSize: 0.5,
     maxEdgeSize: 1,
-    minNodeSize: 1,
+    minNodeSize: 2,
     maxNodeSize: 8,
 //	edgeColor: 'default', // we are using source edge color.
 //			    defaultEdgeColor: 'red',
@@ -50,7 +50,7 @@ var graphSettings = {
 
 var iconUrls = {
     'Block'       : ['icons/bank.png', '#4C6A92'],
-    'Transaction' : ['icons/graph-icons/Account.png', '#ad5492'],
+    'Transaction' : ['icons/bitcoin.png', '#e2641f'],
     'Input'       : ['icons/graph-icons/TransactionEvent.png', '#F7CAC9'],
     'Output'      : ['icons/graph-icons/TransactionEvent.png', '#cc0c29'],
     'Address'     : ['icons/address.png', '#229954']

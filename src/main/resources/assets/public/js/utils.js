@@ -136,7 +136,7 @@ function getTemplate(nodeLabel) {
 
 function getNodeSize (node) {
 	var label = node.label;
-	var retVal = 8;
+	var retVal = 6;
 
 //	if (label === 'Transaction') {
 //		retVal = node.data.m_Inputs + node.data.m_Outputs/10;

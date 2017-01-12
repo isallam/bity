@@ -48,6 +48,7 @@ dependencies {
 	compile group: 'org.glassfish.grizzly', name: 'grizzly-http-all', version: '2.3.27'
     compile group: 'com.beust', name: 'jcommander', version: '1.7'
 	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    compile 'org.bitcoinj:bitcoinj-core:0.14.3'
 }
 
 
@@ -78,6 +79,13 @@ task runServer(type: JavaExec, dependsOn: ['build', 'fatJar']){
 	classpath = sourceSets.main.runtimeClasspath
 	standardInput = System.in
 	main = 'com.objy.se.query.QueryServer'
+	args '-bootfile',"${fddirhost}::${fddirpath}${fdname}.boot"
+}
+
+task runIngester(type: JavaExec, dependsOn: ['build', 'fatJar']){
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	main = 'com.objy.se.ingest.BitcoinIngester'
 	args '-bootfile',"${fddirhost}::${fddirpath}${fdname}.boot"
 }
 

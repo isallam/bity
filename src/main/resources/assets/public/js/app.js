@@ -103,6 +103,13 @@ function processSelection() {
         //queryString = 'Match p=(:Person)-[*1..2]->(:Email) return p';
         queryString = "MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)" +
             "-[:m_Outputs]->(:Output)-->(:Address) RETURN p";
+    } else if (qOption.value === 'SatoshiAnalysis1') {
+      //queryString = 'MATCH p = (:Block{m_Id=="0"})-[:m_Transactions]->(:Transaction)' + 
+      //      '-[:m_Outputs]->(:Output)-->(:Address)-[:m_Outputs]->(:Output)-->(:Transaction)' +
+      //      '-[:m_Inputs]->(:Input{m_IsCoinBase == false}) RETURN p'
+      queryString = 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
+            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
+            '-->() RETURN p';
     }
     getQueryBox().value = queryString;
     writeToStatus("Executing: " + qOption.value);

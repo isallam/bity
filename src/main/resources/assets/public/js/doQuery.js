@@ -241,10 +241,11 @@ var DoQuery = {
          	//barrnsHutOptimizer:false,
            autoStop: true,
            background: true,
-         	scaleRatio: 30,
-         	gravity: 3,
-           	easing: 'cubicInOut'
+         	scalingRatio: 2,
+         	gravity: 4,
+           	easing: 'cubicInOut',
          	//easing: 'quadraticInOut'
+            randomize: 'locally'
          });
         
          // Bind the events:
@@ -530,7 +531,7 @@ var DoQuery = {
                         target: edge.target,
                         label: edge.label,
                         size: 1,
-                        //level: 2,
+                        level: 2,
                         type: 'curvedArrow',
                         // color: getEdgeColor(sGraph.graph, qResult.edge.source),
                         hover_color: '#000'
@@ -790,6 +791,7 @@ var DoQuery = {
         // Instanciate the tooltips plugin with a Mustache renderer for node tooltips:
         var tooltips = sigma.plugins.tooltips(this.sigmaGraph,
                 this.sigmaGraph.renderers[0], config);
+        
 
 
 //		tooltips.bind('shown', function(event) {
