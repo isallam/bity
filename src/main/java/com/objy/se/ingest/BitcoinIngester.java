@@ -102,13 +102,17 @@ public class BitcoinIngester {
           for (TransactionOutput output : outputList) {
             numOutput++;
             //Sha256Hash hashValue = output.getHash();
-            Address address1 = output.getAddressFromP2PKHScript(np);
-            if (address1 != null) {
-              byte[] hash60 = address1.getHash160();
-            }
-            Address address2 = output.getAddressFromP2SH(np);
-            if (address2 != null) {
-              byte[] hash60 = address2.getHash160();
+            try {
+              Address address1 = output.getAddressFromP2PKHScript(np);
+              if (address1 != null) {
+                byte[] hash60 = address1.getHash160();
+              }
+              Address address2 = output.getAddressFromP2SH(np);
+              if (address2 != null) {
+                byte[] hash60 = address2.getHash160();
+              }
+            } catch(org.bitcoinj.core.ScriptException ex) {
+              System.out.println("... error getting address: " + ex.getMessage());
             }
           }
         }
