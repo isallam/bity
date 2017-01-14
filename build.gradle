@@ -1,7 +1,10 @@
 apply plugin: 'application'
 apply plugin: 'eclipse'
-apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'java'
+compileJava {
+  sourceCompatibility = '1.8'
+}
 
 //assign defaults and overwrite them with existing parameters
 ext{
@@ -10,12 +13,14 @@ ext{
     thingspanhome  =   project.hasProperty("thingspanhome")    ?   project.getProperty('thingspanhome')    :   '/opt' + File.separator + 'Objectivity' + File.separator + '12.3'
     fdname         =   project.hasProperty('fdname')           ?   project.getProperty('fdname')           :   'bitcoin'
     fddirhost      =   project.hasProperty('fddirhost')        ?   project.getProperty('fddirhost')        :   java.net.InetAddress.getLocalHost().getHostName();
-    fddirpath      =   project.hasProperty('fddirpath')        ?   project.getProperty('fddirpath')        :   projectPath  + File.separator + '../blockparser/data' + File.separator
+    fddirpath      =   project.hasProperty('fddirpath')        ?   project.getProperty('fddirpath')        :   projectPath  + File.separator + 'data' + File.separator
     objydbcorepath =   "${thingspanhome}${File.separator}lib${File.separator}"
     UserHomeDir    =   System.getProperty("user.home")
 }	
 //=======Overwriting default arguments provided by the respective tasks===========
-mainClassName = 'com.objy.se.query.QueryServer'
+//mainClassName = 'com.objy.se.query.QueryServer'
+mainClassName = 'com.objy.se.ingest.BitcoinIngester'
+
 applicationDefaultJvmArgs = ["-Djava.library.path=${objydbcorepath}:"]
 //run.args = [fddirhost + '::' + fddirpath + fdname + '.boot']
 //jar.archiveName = "verisk_query.jar"
@@ -88,6 +93,24 @@ task runIngester(type: JavaExec, dependsOn: ['build', 'fatJar']){
 	standardInput = System.in
 	main = 'com.objy.se.ingest.BitcoinIngester'
 	args "${UserHomeDir}/.bitcoin/blocks", \
-        '-bootfile',"${fddirhost}::${fddirpath}${fdname}.boot"
+        "${fddirhost}::${fddirpath}${fdname}.boot"
 }
+
+task setupObjy(type: JavaExec, dependsOn: ['build', 'fatJar']){
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	main = 'com.objy.se.ingest.SetupObjy'
+	args "${fddirhost}::${fddirpath}${fdname}.boot"
+}
+
+task debug(dependsOn: ['build', 'fatJar'], type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.objy.se.ingest.BitcoinIngester'
+	args "${UserHomeDir}/.bitcoin/blocks", \
+        "${fddirhost}::${fddirpath}${fdname}.boot"
+    standardInput = System.in
+    ignoreExitValue = true
+    debug = true
+}
+
 
