@@ -260,7 +260,7 @@ public class BitcoinIngester {
             }
 
             String publicKeyStr = public_key.toString();
-            System.out.println("OUTPUT: " + output.toString());            
+            //System.out.println("OUTPUT: " + output.toString());            
             /****
             byte[] pubKeyHash = script.getPubKeyHash();
             
