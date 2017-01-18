@@ -54,7 +54,7 @@ public class ExecuteDO extends QueryInterface {
 				HashMap<String, Integer> sentNodeData = new HashMap<String, Integer>();
 				HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<String, ObjyObject>();
 				int count = 0;
-				while (resultItr.hasNext() && numResults < querySpec.maxResult) {
+				while (numResults < querySpec.maxResult && resultItr.hasNext()) {
 					resultVar = resultItr.next();
 					resultVarType = resultVar.getSpecification().getLogicalType();
 					//System.out.println("... Node type: " + resultVarType.name());
