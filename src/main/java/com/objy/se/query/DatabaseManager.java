@@ -48,6 +48,10 @@ public class DatabaseManager {
 				classTypeMap.put(className, classObj);
 				classNumberMap.put(className, classNumber);
 			}
+            
+            // TBD:... for now we have redundant information between whats in 
+            //         the SchemaHelper and the classNumberMap above.
+            SchemaHelper.cacheSchemaInfo();
 
 			trxScope.complete();
 		}

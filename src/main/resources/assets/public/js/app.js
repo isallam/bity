@@ -20,7 +20,14 @@ function doInit() {
         qbox.value = qboxDefaultText
 
     // hide similarity buttton
-    Utils.eraseElem('table-btn');
+    //Utils.eraseElem('table-btn');
+
+	// hide similarity buttton
+	Utils.eraseElem('similar-nodes-btn')
+	Utils.eraseElem('select-nodes-btn')
+
+	// hide all the extra GraphContainers.
+	hideOtherGraphContainers();
 
     // websocket stuff.
     if (!window.WebSocket) {
@@ -48,7 +55,7 @@ function doInit() {
 
 function doQuery() {
     var queryBox = getQueryBox();
-    Utils.ratifyElem('table-btn')
+    //Utils.ratifyElem('table-btn')
     DoQuery.execute('graphContainer', queryBox.value);
 }
 
@@ -85,6 +92,14 @@ function doResetView() {
         DoQuery.locate.center(DoQuery.locateZoomDef);
 }
 
+function doLayout1View() {
+  DoQuery.doForceLayout();
+}
+
+function doLayout2View() {
+  DoQuery.doNicerLayout();
+}
+
 function toggleModelDisplay() {
     Utils.toggle('model-graph')
 }
@@ -93,6 +108,34 @@ function doShowResultsTable() {
     // showing the results table.
 }
 
+function doSelectNodes() {
+		// activate lasso
+		DoQuery.lasso.activate();
+		DoQuery.selectedNodes = null;
+		Utils.eraseElem('select-nodes-btn')
+		Utils.ratifyElem('similar-nodes-btn')
+}
+
+function doNodeSimilarity() {
+	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
+		return;
+
+	Utils.eraseElem('similar-nodes-btn')
+	DoQuery.lasso.deactivate();
+	DoQuery.doSimilarity(DoQuery)
+}
+
+function hideOtherGraphContainers() {
+	Utils.hide('gc1');
+	Utils.hide('gc2');
+	Utils.hide('gc3');
+	Utils.hide('gc4');
+
+	// clearGraphContainer('gc1');
+	// clearGraphContainer('gc2');
+	// clearGraphContainer('gc3');
+	// clearGraphContainer('gc4');
+}
 
 function processSelection() {
     var qOption = document.getElementById("qOption");
@@ -110,6 +153,15 @@ function processSelection() {
       queryString = 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
             '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
             '-->() RETURN p';
+    } else if (qOption.value === 'Wikileaks1') {
+      queryString = 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
+              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p';
+    } else if (qOption.value === 'NotGenerated') {
+      queryString = 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p';
+    } else if (qOption.value == 'OneToMany') {
+      queryString = 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->() return p';
+    } else if (qOption.value == 'ManyToOne') {
+      queryString = 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p';
     }
     getQueryBox().value = queryString;
     writeToStatus("Executing: " + qOption.value);
@@ -137,50 +189,50 @@ function doDomainAutoComplete() {
     DoSearch.execute('domain-datalist', doStatement);
 }
 
-function doSearchPersonToDomain() {
-    var personSelect = document.getElementById("person-select");
-    var domainSelect = document.getElementById("domain-select");
-    var personSelectVal = personSelect.value;
-    var domainSelectVal = domainSelect.value;
-    var findPerson = false;
-    var findDomain = false;
-
-    // let's decide what to do. Either find the person, the domain, navigate or do nothing.
-    if (personSelectVal !== "") {
-        findPerson = true;
-    }
-    if (domainSelectVal !== "") {
-        findDomain = true;
-    }
-
-    if (findPerson && findDomain) {
-        // split on firstName and lastName
-        var names = personSelectVal.split(" ");
-        if (names.length == 2) {
-            var doString = "MATCH p = (:Person{firstName == \"" + names[0] +
-                "\"AND lastName == \"" + names[1] + "\"})-[:sends]->(:Communication)" +
-                "-[:recipient]->(:Person)-->(:Domain{domain==\"" + domainSelectVal + "\"}) RETURN p";
-            DoQuery.execute('graphContainer', doString);
-            Utils.ratifyElem('table-btn')
-        } else {
-            writeToStatus("Error identifying the name: " + names.toString());
-        }
-        // navigagte.
-    }
-    else if (findPerson) {
-        // split on firstName and lastName
-        var names = personSelectVal.split(" ");
-        if (names.length == 2) {
-            var doString = "From Person where firstName == \"" +
-                names[0] + "\" and lastName == \"" + names[1] + "\" return *";
-            DoQuery.execute('graphContainer', doString);
-        } else {
-            writeToStatus("Error identifying the name: " + names.toString());
-        }
-    }
-    else if (findDomain) {
-        var doString = "From Domain where domain == \"" +
-            domainSelectVal + "\" return *";
-        DoQuery.execute('graphContainer', doString);
-    }
-}
+//function doSearchPersonToDomain() {
+//    var personSelect = document.getElementById("person-select");
+//    var domainSelect = document.getElementById("domain-select");
+//    var personSelectVal = personSelect.value;
+//    var domainSelectVal = domainSelect.value;
+//    var findPerson = false;
+//    var findDomain = false;
+//
+//    // let's decide what to do. Either find the person, the domain, navigate or do nothing.
+//    if (personSelectVal !== "") {
+//        findPerson = true;
+//    }
+//    if (domainSelectVal !== "") {
+//        findDomain = true;
+//    }
+//
+//    if (findPerson && findDomain) {
+//        // split on firstName and lastName
+//        var names = personSelectVal.split(" ");
+//        if (names.length == 2) {
+//            var doString = "MATCH p = (:Person{firstName == \"" + names[0] +
+//                "\"AND lastName == \"" + names[1] + "\"})-[:sends]->(:Communication)" +
+//                "-[:recipient]->(:Person)-->(:Domain{domain==\"" + domainSelectVal + "\"}) RETURN p";
+//            DoQuery.execute('graphContainer', doString);
+//            Utils.ratifyElem('table-btn')
+//        } else {
+//            writeToStatus("Error identifying the name: " + names.toString());
+//        }
+//        // navigagte.
+//    }
+//    else if (findPerson) {
+//        // split on firstName and lastName
+//        var names = personSelectVal.split(" ");
+//        if (names.length == 2) {
+//            var doString = "From Person where firstName == \"" +
+//                names[0] + "\" and lastName == \"" + names[1] + "\" return *";
+//            DoQuery.execute('graphContainer', doString);
+//        } else {
+//            writeToStatus("Error identifying the name: " + names.toString());
+//        }
+//    }
+//    else if (findDomain) {
+//        var doString = "From Domain where domain == \"" +
+//            domainSelectVal + "\" return *";
+//        DoQuery.execute('graphContainer', doString);
+//    }
+//}

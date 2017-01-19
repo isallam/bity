@@ -125,7 +125,15 @@ var DoQuery = {
             sigmaGraphRef.graph.clear();
             sigmaGraphRef.refresh();
         }
-        Utils.show(container);
+        for (var key in this.contextList) {
+          var elem = this.contextList[key];
+          elem.graph.clear();
+          elem.refresh();
+        }
+		hideOtherGraphContainers();
+
+      Utils.show(container);
+
 
         var maxResults = getMaxResults();
         //console.log("using max-results: " + maxResults);
@@ -247,6 +255,7 @@ var DoQuery = {
          	//easing: 'quadraticInOut'
             randomize: 'locally'
          });
+         
         
          // Bind the events:
          fa.bind('start stop', function(e) {
@@ -254,17 +263,17 @@ var DoQuery = {
          });
 
         // Configure the Fruchterman-Reingold algorithm:
-//        var frListener = sigma.layouts.fruchtermanReingold.configure(this.sigmaGraph, {
-//            gravity: 1.8,
-//            iterations: 100, //500,
-//            easing: 'quadraticInOut', //'cubicInOut',
-//            duration: 100 //800
-//        });
-//
-//        // Bind the events:
-//        frListener.bind('start stop interpolate', function (e) {
-//            console.log(e.type);
-//        });
+        var frListener = sigma.layouts.fruchtermanReingold.configure(this.sigmaGraph, {
+            gravity: 1.8,
+            iterations: 100, //500,
+            easing: 'quadraticInOut', //'cubicInOut',
+            duration: 100 //800
+        });
+
+        // Bind the events:
+        frListener.bind('start stop interpolate', function (e) {
+            console.log(e.type);
+        });
 
 
         this.lasso = this.configureLasso(this.sigmaGraph);
@@ -299,6 +308,16 @@ var DoQuery = {
           console.log(event);
         });
     },
+    
+    doForceLayout: function() {
+        sigma.layouts.startForceLink();
+    },
+    
+    doNicerLayout: function() {
+        // Start the Fruchterman-Reingold algorithm:
+        sigma.layouts.fruchtermanReingold.start(window.sigmaGraph);
+    },
+    
     /***
      *
      * @param nodeId
@@ -340,103 +359,79 @@ var DoQuery = {
         this.clearLocateLists();
 
         var resultsTable = document.getElementById('resultsTable');
-        // clear the table first.
-        while(resultsTable.rows.length > 1)
+        if (resultsTable != null)
         {
-            resultsTable.deleteRow(1);
+          // clear the table first.
+          while(resultsTable.rows.length > 1)
+          {
+              resultsTable.deleteRow(1);
+          }
+
+          // pick the top 10 communications based on emails. the table with the top communication.
+          var items = [];
+          var maxItems = 10;
+          var minCount = 99999999;
+  //        var maxEmailCount = Math.MIN_VALUE;
+
+          sGraph.graph.nodes().forEach(function (n) {
+              if (n.label == 'Transaction') {
+                  if (items.length < maxItems) {
+                      items.push(n);
+                      minCount = Math.min(minCount, n.data.m_Outputs);
+  //                    maxEmailCount = max(maxEmailCount, n.data.emails);
+                  }
+                  else
+                  {
+                      if (n.data.m_Outputs > minCount) {
+                          items.push(n);
+                      }
+
+                  }
+                  items.sort(function(a, b) {
+                     return (b.data.m_Outputs - a.data.m_Outputs);
+                  });
+                  if (items.length > maxItems)
+                      items.pop(); // remove the last smaller item.
+                  //console.log("Array: ", emails);
+              }
+          });
+          if (items.length >0) {
+              items.forEach(function(n, i) {
+                  var hash = n.data.m_Hash;
+                  var outputs = n.data.m_Outputs;
+                  var inputs = n.data.m_Inputs;
+
+                  var tr = resultsTable.insertRow(1);
+                  var td = tr.insertCell(0);
+                  td.innerHTML = hash;
+                  td = tr.insertCell(1);
+                  td.innerHTML = inputs;
+                  td = tr.insertCell(2);
+                  td.innerHTML = outputs;
+              });
+          }
         }
 
-        // pick the top 10 communications based on emails. the table with the top communication.
-        var items = [];
-        var maxItems = 10;
-        var minCount = 99999999;
-//        var maxEmailCount = Math.MIN_VALUE;
+        // find out if we have more than one transaction in the graph.
+        // 
+        var numTransactions = 0;
+        var sGraph = this.contextList[context];
 
         sGraph.graph.nodes().forEach(function (n) {
-            if (n.label == 'Transaction') {
-                if (items.length < maxItems) {
-                    items.push(n);
-                    minCount = Math.min(minCount, n.data.m_Outputs);
-//                    maxEmailCount = max(maxEmailCount, n.data.emails);
-                }
-                else
-                {
-                    if (n.data.m_Outputs > minCount) {
-                        items.push(n);
-                    }
-
-                }
-                items.sort(function(a, b) {
-                   return (b.data.m_Outputs - a.data.m_Outputs);
-                });
-                if (items.length > maxItems)
-                    items.pop(); // remove the last smaller item.
-                //console.log("Array: ", emails);
-            }
+          if (n.label == 'Transaction')
+          {
+            numTransactions += 1;
+          }
+          return numTransactions >= 2;
         });
-        if (items.length >0) {
-            items.forEach(function(n, i) {
-                var hash = n.data.m_Hash;
-                var outputs = n.data.m_Outputs;
-                var inputs = n.data.m_Inputs;
-                
-                var tr = resultsTable.insertRow(1);
-                var td = tr.insertCell(0);
-                td.innerHTML = hash;
-                td = tr.insertCell(1);
-                td.innerHTML = inputs;
-                td = tr.insertCell(2);
-                td.innerHTML = outputs;
-            });
+
+        console.log("numTrx: ", numTransactions);
+          // only activate the select-nodes-btn if we have more than 1 transction.
+        if (numTransactions > 1) {
+            Utils.ratifyElem('select-nodes-btn')
+        } else {
+            Utils.eraseElem('select-nodes-btn')
         }
-
-
-        // read data to fill the Locate lists.
-        // var accountListElt = this.accountList;
-        // var basketListElt = this.basketList;
-        // var serviceListElt = this.serviceList;
-        // var firmListElt = this.firmList;
-        //
-        // var sGraph = this.contextList[context];
-        //
-        // sGraph.graph.nodes().forEach(function (n) {
-        //     if (n.label == 'Account')
-        //     {
-        //         var optionElt = document.createElement("option");
-        //         optionElt.text = n.data.m_Id;
-        //         optionElt.nodeId = n.id
-        //         accountListElt.add(optionElt);
-        //     }
-        //     if (n.label == 'Basket')
-        //     {
-        //         var optionElt = document.createElement("option");
-        //         optionElt.text = n.data.m_Id;
-        //         optionElt.nodeId = n.id
-        //         basketListElt.add(optionElt);
-        //     }
-        //     if (n.label == 'Service')
-        //     {
-        //         var optionElt = document.createElement("option");
-        //         optionElt.text = n.data.m_InstanceId;
-        //         optionElt.nodeId = n.id
-        //         serviceListElt.add(optionElt);
-        //     }
-        //     if (n.label == 'Firm')
-        //     {
-        //         var optionElt = document.createElement("option");
-        //         optionElt.text = n.data.m_Id;
-        //         optionElt.nodeId = n.id
-        //         firmListElt.add(optionElt);
-        //     }
-        //
-        // });
-        //
-        // // only activate the select-nodes-btn if we have baskets.
-        // if (this.basketList.length > 1) {
-        //     Utils.ratifyElem('select-nodes-btn')
-        // } else {
-        //     Utils.eraseElem('select-nodes-btn')
-        // }
 
 
         this.inQuery = false;
@@ -564,168 +559,183 @@ var DoQuery = {
     doSimilarity: function (controller) {
 
         // // TBD... this function can be written better!!!!! IS:
-        // this.inSimilarityState = true;
-        //
-        // objList = [];
-        // controller.selectedNodes.forEach(function (n) {
-        //     objList.push(n.data.m_Id)
-        // })
-        // writeToStatus("Similarity for: " + objList.toString());
-        //
-        // Utils.hide('graphContainer');
-        //
-        // var config1 = {
-        //     element: 'gc1',
-        //     top: '50%',
-        //     bottom: '2%',
-        //     left: '50%',
-        //     right: '10px',
-        //     // no objId1 (since this is a reference graph)
-        //     objId2: objList[0] // this will give us the graph.
-        // }
-        // controller.prepGraphForSimilarity(config1);
-        //
-        // var config2 = {
-        //     element: 'gc2',
-        //     top: '2%',
-        //     bottom: '50%',
-        //     left: '10px',
-        //     right: '50%',
-        //     objId1: objList[0],
-        //     objId2: objList[1]
-        // }
-        //
-        // controller.prepGraphForSimilarity(config2);
-        // controller.sendSimilarityRequest(config2);
-        //
-        // if (objList.length > 2) {
-        //     var config3 = {
-        //         element: 'gc3',
-        //         top: '2%',
-        //         bottom: '50%',
-        //         left: '50%',
-        //         right: '10px',
-        //         objId1: objList[0],
-        //         objId2: objList[2],
-        //     }
-        //
-        //     controller.prepGraphForSimilarity(config3);
-        //     controller.sendSimilarityRequest(config3);
-        // }
-        //
-        // if (objList.length > 3) {
-        //
-        //     var config4 = {
-        //         element: 'gc4',
-        //         top: '50%',
-        //         bottom: '2%',
-        //         left: '10px',
-        //         right: '50%',
-        //         objId1: objList[0],
-        //         objId2: objList[3],
-        //     }
-        //
-        //     controller.prepGraphForSimilarity(config4);
-        //     controller.sendSimilarityRequest(config4);
-        // }
-        // // get the graphs and display them
-        // controller.getGraph(config1);
-        //
-        // controller.getGraph(config2);
-        //
-        // if (objList.length > 2) {
-        //     controller.getGraph(config3);
-        // }
-        // if (objList.length > 3) {
-        //     controller.getGraph(config4);
-        // }
-        //
+         this.inSimilarityState = true;
+        
+         objList = [];
+         controller.selectedNodes.forEach(function (n) {
+            if(n.lable === 'Transaction') {
+             objList.push(n.id);
+           }
+         })
+         writeToStatus("Similarity for: " + objList.toString());
+        
+         Utils.hide('graphContainer');
+        
+         var config1 = {
+             element: 'gc1',
+             top: '50%',
+             bottom: '2%',
+             left: '50%',
+             right: '10px',
+             // no objId1 (since this is a reference graph)
+             objId2: objList[0] // this will give us the graph.
+         }
+         controller.prepGraphForSimilarity(config1);
+        
+         var config2 = {
+             element: 'gc2',
+             top: '2%',
+             bottom: '50%',
+             left: '10px',
+             right: '50%',
+             objId1: objList[0],
+             objId2: objList[1]
+         }
+        
+         controller.prepGraphForSimilarity(config2);
+         controller.sendSimilarityRequest(config2);
+        
+         if (objList.length > 2) {
+             var config3 = {
+                 element: 'gc3',
+                 top: '2%',
+                 bottom: '50%',
+                 left: '50%',
+                 right: '10px',
+                 objId1: objList[0],
+                 objId2: objList[2],
+             }
+        
+             controller.prepGraphForSimilarity(config3);
+             controller.sendSimilarityRequest(config3);
+         }
+         else {
+           // reset the header
+            var gc = document.getElementById('gc3');
+            var gcHeader = document.getElementById('gc3' + "-header");
+            gcHeader.innerHTML = "[]";
+         }
+        
+         if (objList.length > 3) {
+        
+             var config4 = {
+                 element: 'gc4',
+                 top: '50%',
+                 bottom: '2%',
+                 left: '10px',
+                 right: '50%',
+                 objId1: objList[0],
+                 objId2: objList[3],
+             }
+        
+             controller.prepGraphForSimilarity(config4);
+             controller.sendSimilarityRequest(config4);
+         }
+         else {
+           // reset the header
+            var gc = document.getElementById('gc4');
+            var gcHeader = document.getElementById('gc4' + "-header");
+            gcHeader.innerHTML = "[]";
+         }
+         
+         // get the graphs and display them
+         controller.getGraph(config1);
+        
+         controller.getGraph(config2);
+        
+         if (objList.length > 2) {
+             controller.getGraph(config3);
+         }
+         if (objList.length > 3) {
+             controller.getGraph(config4);
+         }
+        
     },
-    // prepGraphForSimilarity: function (config) {
-    //
-    //     var gc1 = document.getElementById(config.element);
-    //     var gc1Header = document.getElementById(config.element + "-header")
-    //     gc1Header.innerHTML = "[" + config.objId2 + "]";
-    //     // gc1.style.top = config.top;
-    //     // gc1.style.bottom = config.bottom;
-    //     // gc1.style.left = config.left;
-    //     // gc1.style.right = config.right;
-    //     // gc1.style.position = 'absolute'
-    //     // gc1.style.background = 'white'
-    //
-    //     // find or create the first sigma graph object.
-    //     var s1 = this.contextList[config.element];
-    //     if (s1) {
-    //         // clear the old graph
-    //         s1.graph.clear();
-    //     } else {
-    //         s1 = new sigma({
-    //             renderer: {
-    //                 container: gc1,
-    //                 type: 'canvas'
-    //             },
-    //             settings: graphSettings
-    //         });
-    //
-    //         // Configure the Fruchterman-Reingold algorithm:
-    //         var frListener = sigma.layouts.fruchtermanReingold.configure(s1, {
-    //             iterations: 500,
-    //             easing: 'quadraticInOut',
-    //             duration: 800
-    //         });
-    //
-    //         // regisgter with contextList.
-    //         this.contextList[config.element] = s1;
-    //     }
-    // },
+     prepGraphForSimilarity: function (config) {
+    
+         var gc1 = document.getElementById(config.element);
+         var gc1Header = document.getElementById(config.element + "-header")
+         gc1Header.innerHTML = "[" + config.objId2 + "]";
+         // gc1.style.top = config.top;
+         // gc1.style.bottom = config.bottom;
+         // gc1.style.left = config.left;
+         // gc1.style.right = config.right;
+         // gc1.style.position = 'absolute'
+         // gc1.style.background = 'white'
+    
+         // find or create the first sigma graph object.
+         var s1 = this.contextList[config.element];
+         if (s1) {
+             // clear the old graph
+             s1.graph.clear();
+         } else {
+             s1 = new sigma({
+                 renderer: {
+                     container: gc1,
+                     type: 'canvas'
+                 },
+                 settings: graphSettings
+             });
+    
+             // Configure the Fruchterman-Reingold algorithm:
+             var frListener = sigma.layouts.fruchtermanReingold.configure(s1, {
+                 iterations: 500,
+                 easing: 'quadraticInOut',
+                 duration: 800
+             });
+    
+             // regisgter with contextList.
+             this.contextList[config.element] = s1;
+         }
+     },
+     
     /***
      * // send request to get the graph
      *
      * @param config
      * @returns
      */
-    // getGraph: function (config) {
-    //     var maxResults = getMaxResults();
-    //
-    //     var queryString1 = 'Match p=(:Basket{m_Id=="' + config.objId2 + '"})' +
-    //             '-[:m_Transactions]->' +
-    //             '(:Transaction)-[:m_Children*1..5]->(:Transaction)' +
-    //             '-[:m_Security]->(:Security) return p';
-    //
-    //     var msg1 = {
-    //         "qType": "DOQuery",
-    //         "qContext": config.element,
-    //         "doStatement": queryString1,
-    //         "maxResult": Number(maxResults),
-    //         "verbose": 2
-    //     };
-    //
-    //     WebSocketHandler.sendMessage(msg1, this /*controller*/);
-    //     writeToStatus("Requesting Graph for: " + config.objId2);
-    //     Utils.show(config.element);
-    // },
+     getGraph: function (config) {
+         var maxResults = getMaxResults();
+         // for Transaction objId2 is actually an OID.
+         var queryString1 = 'Match p=(:Transaction{$$this_reference== ' + config.objId2 + '})' +
+                 '-->() return p';
+    
+         var msg1 = {
+             "qType": "DOQuery",
+             "qContext": config.element,
+             "doStatement": queryString1,
+             "maxResult": Number(maxResults),
+             "verbose": 2
+         };
+    
+         WebSocketHandler.sendMessage(msg1, this /*controller*/);
+         writeToStatus("Requesting Graph for: " + config.objId2);
+         Utils.show(config.element);
+     },
     
     /***
      * executeSimilarityRequest
      *
      */
-    // sendSimilarityRequest: function (config) {
-    //
-    //     // send the request.
-    //     var maxResults = getMaxResults();
-    //
-    //     if (config.objId1 != null) // this is areference graph, don't do similarity
-    //     {
-    //         var msg1 = {
-    //             "qContext": config.element,
-    //             "qType": "similarity", "objId1": config.objId1,
-    //             "objId2": config.objId2,
-    //             "maxResult": Number(maxResults),
-    //             "verbose": 2
-    //         };
-    //         WebSocketHandler.sendMessage(msg1, this /*controller*/);
-    //     }
-    // },
+     sendSimilarityRequest: function (config) {
+    
+         // send the request.
+         var maxResults = getMaxResults();
+    
+         if (config.objId1 != null) // this is areference graph, don't do similarity
+         {
+             var msg1 = {
+                 "qContext": config.element,
+                 "qType": "similarity", "objId1": config.objId1,
+                 "objId2": config.objId2,
+                 "maxResult": Number(maxResults),
+                 "verbose": 2
+             };
+             WebSocketHandler.sendMessage(msg1, this /*controller*/);
+         }
+     },
+    
     /***
      *
      */

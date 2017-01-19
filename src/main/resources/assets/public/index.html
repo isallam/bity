@@ -142,6 +142,10 @@
                     <option value="GetBlock">Get Block</option>
                     <option value="BlockToAddress">Block to Address</option>
                     <option value="SatoshiAnalysis1">Satoshi N. Analysis</option>
+                    <option value="Wikileaks1">Wikileaks 1</option>
+                    <option value="OneToMany">One to Many</option>
+                    <option value="ManyToOne">Many to One</option>
+                    <option value='NotGenerated'>Not Generated</option>
                 </select>
                 <input type="button" class="app-btn" value="Run" onclick="doQuery()"/>
             </div>
@@ -184,6 +188,23 @@
                     <img src="icons/reset_button_blue.png" alt="ResetView" width='24'
                          id="reset-view-btn" onclick="doResetView()"/>
                 </div>
+                <div style="cursor: pointer">
+                    <img src="icons/layout1.png" alt="Layout1" width='24'
+                         id="layout1-btn" onclick="doLayout1View()"/>
+                </div>
+                <div style="cursor: pointer">
+                    <img src="icons/layout2.png" alt="Layout2" width='24'
+                         id="layout2-btn" onclick="doLayout2View()"/>
+                </div>
+                <div>
+                    <img src="icons/mouse_cursor.png" alt="Select" width='24'
+                         id="select-nodes-btn" onclick="doSelectNodes()"/>
+                </div>
+                <div>
+                    <img src="icons/similar.png" alt="Similar" width='24'
+                         id="similar-nodes-btn" onclick="doNodeSimilarity()"/>
+                </div>
+                <!--
                 <div class="tableGroup">
                     <div id="table-pane" class="tableHover">
                         <h2 class="underline">Transaction</h2>
@@ -194,11 +215,6 @@
                                     <th># Inputs</th>
                                     <th># Outputs</th>
                                 </tr>
-<!--                                <tr>
-                                    <td>Joe Doe</td>
-                                    <td>Jane Doe</td>
-                                    <td> 100 </td>
-                                </tr>-->
                             </table>
                         </div>
                         <span class="line"></span>
@@ -206,6 +222,7 @@
                     <img src="icons/table.png" alt="Select" width='24'
                          id="table-btn" onclick="doShowResultsTable()"/>
                 </div>
+                -->
             </div>
             <div class="noselect">
               <img src="icons/model.png" alt="Model" width='500' id="model-graph" style="visibility: hidden"/>
@@ -223,7 +240,23 @@
                 </h3>
             </div>
              <!--<i id="graph-btn"></i>-->
-        </div>
+            <div class="gc-s">
+                <header id="gc1-header">[G1]</header>
+                <div id="gc1"></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc2-header">[G2]</header>
+                <div id="gc2"></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc3-header">[G3]</header>
+                <div id="gc3" ></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc4-header">[G4]</header>
+                <div id="gc4" ></div>
+            </div>
+         </div>
     </div>
 </body>
 

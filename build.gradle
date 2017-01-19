@@ -9,8 +9,8 @@ compileJava {
 //assign defaults and overwrite them with existing parameters
 ext{
     projectPath    =   projectDir.getAbsolutePath()
-    objyVersion    =   project.hasProperty("objyVersion")      ?   project.getProperty('objyVersion')      : "12.3.0"
-    thingspanhome  =   project.hasProperty("thingspanhome")    ?   project.getProperty('thingspanhome')    :   '/opt' + File.separator + 'Objectivity' + File.separator + '12.3'
+    objyVersion    =   project.hasProperty("objyVersion")      ?   project.getProperty('objyVersion')      : "12.4.0"
+    thingspanhome  =   project.hasProperty("thingspanhome")    ?   project.getProperty('thingspanhome')    :   '/opt' + File.separator + 'Objectivity' + File.separator + '12.4'
     fdname         =   project.hasProperty('fdname')           ?   project.getProperty('fdname')           :   'bitcoin'
     fddirhost      =   project.hasProperty('fddirhost')        ?   project.getProperty('fddirhost')        :   java.net.InetAddress.getLocalHost().getHostName();
     fddirpath      =   project.hasProperty('fddirpath')        ?   project.getProperty('fddirpath')        :   projectPath  + File.separator + 'data' + File.separator

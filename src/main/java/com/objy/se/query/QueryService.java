@@ -83,6 +83,8 @@ public class QueryService extends WebSocketApplication {
             	query = new ExecuteDO(manager, querySpec, resultQueue);
             } else if (qType.equalsIgnoreCase("getEdges")) {
                 query = new GetEdges(manager, querySpec, resultQueue);
+            } else if (qType.equalsIgnoreCase("similarity")) {
+                query = new Similarity(manager, querySpec, resultQueue);
             } else {
                 System.out.println("Error: There is no handler for: " + qType);
             }
