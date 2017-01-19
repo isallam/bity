@@ -159,7 +159,7 @@ function processSelection() {
     } else if (qOption.value === 'NotGenerated1') {
       queryString = 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p';
     } else if (qOption.value === 'NotGenerated2') {
-      queryString = 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 100})-->(:Input {m_IsCoinBase == false}) return p';
+      queryString = 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})-->(:Input {m_IsCoinBase == false}) return p';
     } else if (qOption.value == 'OneToMany') {
       queryString = 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->() return p';
     } else if (qOption.value == 'ManyToOne') {
