@@ -704,14 +704,20 @@ var DoQuery = {
          // for Transaction objId2 is actually an OID.
          var queryString1 = 'Match p=(:Transaction{$$this_reference== ' + config.objId2 + '})' +
                  '-->() return p';
-    
-         var msg1 = {
-             "qType": "DOQuery",
-             "qContext": config.element,
-             "doStatement": queryString1,
-             "maxResult": Number(maxResults),
-             "verbose": 2
-         };
+         // until we fix the performance of the query above.
+//         var msg1 = {
+//             "qType": "DOQuery",
+//             "qContext": config.element,
+//             "doStatement": queryString1,
+//             "maxResult": Number(maxResults),
+//             "verbose": 2
+//         };
+        var msg1 = {
+            "qType": "getEdges", 
+            "qContext": config.element,
+            "objRef": config.objId2,
+            "maxResult": Number(maxResults),
+            "verbose": 2};
     
          WebSocketHandler.sendMessage(msg1, this /*controller*/);
          writeToStatus("Requesting Graph for: " + config.objId2);

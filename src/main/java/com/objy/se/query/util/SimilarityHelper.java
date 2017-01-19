@@ -1,6 +1,7 @@
 package com.objy.se.query.util;
 
 import com.objy.data.*;
+import com.objy.db.ObjectId;
 import com.objy.expression.language.LanguageRegistry;
 import com.objy.statement.Statement;
 
@@ -26,7 +27,7 @@ public class SimilarityHelper {
 
     final static Logger logger = LoggerFactory.getLogger(SimilarityHelper.class);
 
-    public static HashMap<Long, Integer> getGraphForVertex(String id)
+    public static HashMap<Long, Integer> getGraphForVertex_DO_version(String id)
     {
         HashMap<Long, Integer> subGraph = new HashMap<Long, Integer>();
 //		String queryString = "Match p=(:Basket{m_Id=='" + basketId + "'})" +
@@ -88,6 +89,53 @@ public class SimilarityHelper {
 
         // TODO Auto-generated method stub
         return subGraph;
+    }
+
+    public static HashMap<Long, Integer> getGraphForVertex(String id)
+    {
+        HashMap<Long, Integer> subGraph = new HashMap<Long, Integer>();
+
+        ObjectId vObjectId = ObjectId.fromString(id);
+		com.objy.data.Class targetClass = com.objy.data.Class.lookupClass("ooObj");
+        Instance vertex = Instance.lookup(vObjectId);
+		if (vertex != null) {
+			Sequence edgeSequence = vertex.getEdges(targetClass);
+
+            int numResults = 0;
+
+            HashMap<Long, Integer> uniqueVertices = new HashMap<Long, Integer>();
+
+            processEdges(edgeSequence, uniqueVertices, subGraph);
+            
+            numResults++;
+            logger.info("for {} - found {} path", id, numResults);
+            //Similarity.getLogger().info("SubGraph: " + subGraph.toString());
+        }
+
+        // TODO Auto-generated method stub
+        return subGraph;
+    }
+
+    private static void processEdges(Sequence edgeSequence,
+                                HashMap<Long, Integer> uniqueVertices, 
+                                HashMap<Long, Integer> subGraph) {
+        Iterator<Variable> edgeItr = edgeSequence.iterator();
+        Variable edgeVar = null;
+        while(edgeItr.hasNext())
+        {
+            edgeVar = edgeItr.next();
+            Edge edge = edgeVar.edgeValue();
+
+//			String from = edge.from().getClass(true).getName() + "^" +
+//					edge.from().getObjectId().toString();
+//			String to = edge.to().getClass(true).getName() + "^" +
+//					edge.to().getObjectId().toString();
+//			System.out.println("........edge: ["+ from + "]->["+to+"]");
+
+            processVertex(edge.from(), uniqueVertices, subGraph);
+            processVertex(edge.to(), uniqueVertices, subGraph);
+        }
+
     }
 
     private static void processWalk(Walk walk,
