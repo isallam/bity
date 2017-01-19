@@ -361,6 +361,7 @@ var DoQuery = {
         var resultsTable = document.getElementById('resultsTable');
         if (resultsTable != null)
         {
+	/***
           // clear the table first.
           while(resultsTable.rows.length > 1)
           {
@@ -410,6 +411,7 @@ var DoQuery = {
                   td.innerHTML = outputs;
               });
           }
+	***/
         }
 
         // find out if we have more than one transaction in the graph.
@@ -563,11 +565,13 @@ var DoQuery = {
         
          objList = [];
          controller.selectedNodes.forEach(function (n) {
-            if(n.lable === 'Transaction') {
+            if(n.label === 'Transaction') {
              objList.push(n.id);
            }
          })
          writeToStatus("Similarity for: " + objList.toString());
+         if (objList.length  < 2)
+           writeToStatus(" Not enough data to do Similarity...");
         
          Utils.hide('graphContainer');
         
