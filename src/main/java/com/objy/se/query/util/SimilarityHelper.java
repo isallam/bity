@@ -3,6 +3,7 @@ package com.objy.se.query.util;
 import com.objy.data.*;
 import com.objy.db.ObjectId;
 import com.objy.expression.language.LanguageRegistry;
+import com.objy.se.query.Similarity;
 import com.objy.statement.Statement;
 
 import java.util.*;
@@ -96,10 +97,10 @@ public class SimilarityHelper {
         HashMap<Long, Integer> subGraph = new HashMap<Long, Integer>();
 
         ObjectId vObjectId = ObjectId.fromString(id);
-		com.objy.data.Class targetClass = com.objy.data.Class.lookupClass("ooObj");
+		
         Instance vertex = Instance.lookup(vObjectId);
 		if (vertex != null) {
-			Sequence edgeSequence = vertex.getEdges(targetClass);
+			Sequence edgeSequence = vertex.getEdges(Similarity.targetClass);
 
             int numResults = 0;
 
@@ -134,6 +135,14 @@ public class SimilarityHelper {
 
             processVertex(edge.from(), uniqueVertices, subGraph);
             processVertex(edge.to(), uniqueVertices, subGraph);
+            // add neighbours of Output, i.e. Address.
+            if (edge.to().getClassNumber() == SchemaHelper.outputClassNumber)
+            {
+              Instance vertex = edge.to();
+              Sequence addressSequence = vertex.getEdges(Similarity.targetClass);
+
+              processEdges(addressSequence, uniqueVertices, subGraph);
+            }
         }
 
     }
@@ -169,7 +178,8 @@ public class SimilarityHelper {
             long classNumber = instance.getClassNumber();
             
             if ((classNumber == SchemaHelper.inputClassNumber) || 
-                    (classNumber == SchemaHelper.outputClassNumber))
+                    (classNumber == SchemaHelper.outputClassNumber) ||
+                    (classNumber == SchemaHelper.addressClassNumber))
             {
                 if (subGraph.containsKey(classNumber) == false)
                 {

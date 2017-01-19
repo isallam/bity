@@ -22,9 +22,11 @@ public class Similarity extends QueryInterface
 {
 
 	final static Logger logger = LoggerFactory.getLogger(Similarity.class);
-
+    public static com.objy.data.Class targetClass = null;
+        
 	public Similarity(DatabaseManager manager, QuerySpec querySpec, ArrayBlockingQueue<String> resultQueue) {
 		super(manager, querySpec, resultQueue);
+        targetClass = com.objy.data.Class.lookupClass("ooObj");
 	}
 
 
