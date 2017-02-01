@@ -5,8 +5,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-//import com.fasterxml.jackson.core.JsonParseException;
-import org.glassfish.grizzly.http.HttpRequestPacket;
 import org.glassfish.grizzly.websockets.DataFrame;
 import org.glassfish.grizzly.websockets.WebSocket;
 import org.glassfish.grizzly.websockets.WebSocketApplication;
@@ -85,6 +83,8 @@ public class QueryService extends WebSocketApplication {
                 query = new GetEdges(manager, querySpec, resultQueue);
             } else if (qType.equalsIgnoreCase("similarity")) {
                 query = new Similarity(manager, querySpec, resultQueue);
+            } else if (qType.equalsIgnoreCase("DoUpdate")) {
+                query = new ExecuteDOUpdate(manager, querySpec, resultQueue);
             } else {
                 System.out.println("Error: There is no handler for: " + qType);
             }

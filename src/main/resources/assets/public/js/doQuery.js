@@ -278,7 +278,7 @@ var DoQuery = {
 
         this.lasso = this.configureLasso(this.sigmaGraph);
         this.configureLocate();
-        this.configureTooltip();
+        configureTooltip(this.sigmaGraph);
 
         window.activeState = activeState = sigma.plugins.activeState(this.sigmaGraph);
 
@@ -744,83 +744,6 @@ var DoQuery = {
              };
              WebSocketHandler.sendMessage(msg1, this /*controller*/);
          }
-     },
+     }
     
-    /***
-     *
-     */
-    configureTooltip: function () {
-        //tooltip stuff..
-        var config = {
-            node: [{
-                    show: 'clickNode',
-                    delay: 500,
-//		    show: 'hovers',
-                    hide: 'hovers',
-                    hideDelay: 500,
-                    cssClass: 'sigma-tooltip',
-                    position: 'top',
-                    //autoadjust: true,
-//		    template: this.nodeTemplate,
-                    // '<div class="arrow"></div>' +
-                    // ' <div class="sigma-tooltip-header">{{label}}</div>' +
-                    // '  <div class="sigma-tooltip-body">' +
-                    // '    <table>' +
-                    // '      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-                    // '      <tr><th>OID</th> <td>{{data.oid}}</td></tr>' +
-                    // '      <tr><th>Edges</th> <td>{{data.edges}}</td></tr>' +
-                    // '    </table>' +
-                    // '  </div>' +
-                    // '  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>',
-                    renderer: function (node, template) {
-                        // The function context is s.graph
-                        node.degree = this.degree(node.id);
-                        node.trxType = getTrxType(node)
-                        template = getTemplate(node.label);
-
-                        // Returns an HTML string:
-                        return Mustache.render(template, node);
-
-                        // Returns a DOM Element:
-                        //var el = document.createElement('div');
-                        //return el.innerHTML = Mustache.render(template, node);
-                    }
-                }, {
-                    show: 'rightClickNode',
-                    cssClass: 'sigma-tooltip',
-                    position: 'right',
-                    template:
-                            '<div class="arrow"></div>' +
-                            ' <div class="sigma-tooltip-header">{{label}}</div>' +
-                            '  <div class="sigma-tooltip-body">' +
-                            '   <p> Context menu for {{data.m_Id}} </p>' +
-                            '  </div>' +
-                            ' <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>',
-                    renderer: function (node, template) {
-                        node.degree = this.degree(node.id);
-                        return Mustache.render(template, node);
-                    }
-                }],
-            stage: {
-                template:
-                        '<div class="arrow"></div>' +
-                        '<div class="sigma-tooltip-header"> Menu </div>'
-            }
-        };
-
-        // Instanciate the tooltips plugin with a Mustache renderer for node tooltips:
-        var tooltips = sigma.plugins.tooltips(this.sigmaGraph,
-                this.sigmaGraph.renderers[0], config);
-        
-
-
-//		tooltips.bind('shown', function(event) {
-//		  console.log('tooltip shown', event);
-//		});
-//
-//		tooltips.bind('hidden', function(event) {
-//		  console.log('tooltip hidden', event);
-//		});
-
-    }
 }

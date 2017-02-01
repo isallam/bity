@@ -169,6 +169,13 @@ function processSelection() {
     writeToStatus("Executing: " + qOption.value);
 }
 
+function doTag() {
+  var elem = document.getElementById("tag-text");
+  var oid = elem.getAttribute("oid");
+  console.log("taging object, OID: " + oid + " with", elem.value);
+  DoTag.tag('statusBox', oid, elem.value);
+}
+
 function doPersonAutoComplete() {
     //console.log("GOT list auto...");
     var elem = document.getElementById("person-select");

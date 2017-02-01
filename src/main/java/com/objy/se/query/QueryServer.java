@@ -1,13 +1,9 @@
 package com.objy.se.query;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 
 import com.objy.se.query.util.SchemaHelper;
@@ -15,7 +11,6 @@ import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.Request;
 import org.glassfish.grizzly.http.server.Response;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.websockets.WebSocketAddOn;
@@ -24,7 +19,6 @@ import org.glassfish.grizzly.websockets.WebSocketEngine;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.objy.data.LogicalType;
 import com.objy.data.Variable;
 import com.objy.db.TransactionMode;
 import com.objy.db.TransactionScope;
