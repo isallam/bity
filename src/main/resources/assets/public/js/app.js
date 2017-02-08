@@ -173,7 +173,7 @@ function doTag() {
   var elem = document.getElementById("tag-text");
   var oid = elem.getAttribute("oid");
   console.log("taging object, OID: " + oid + " with", elem.value);
-  DoTag.tag('statusBox', oid, elem.value);
+  DoQuery.tag('graphContainer', oid, elem.value);
 }
 
 function doPersonAutoComplete() {

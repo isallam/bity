@@ -11,6 +11,8 @@ import com.objy.se.query.util.SchemaHelper;
 import com.objy.se.query.util.QueryArrayAttribute;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
+import com.objy.data.Instance;
+import com.objy.data.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,9 @@ public abstract class QueryInterface {
 	protected long countEdgeStat = 0;
 	protected long alreadySentEdgesCountStat = 0;
 	protected HashMap<String, Integer> alreadySentEdges = new HashMap<>();
+    
+    protected Utils utils = new Utils();
+
 
 	protected QueryInterface(DatabaseManager manager, QuerySpec querySpec,
 			ArrayBlockingQueue<String> resultQueue) {
@@ -206,6 +211,21 @@ public abstract class QueryInterface {
 			alreadySentEdgesCountStat++;
 		}
 		return json;
+	}
+
+	protected void processNeighbors(Instance instance) {
+		ObjyObject obj = new ObjyObject();
+		obj.attributes = new HashMap<>();
+		HashMap<String, Integer> knownNodeOids = new HashMap<String, Integer>();
+
+		com.objy.data.Class targetClass = com.objy.data.Class.lookupClass("ooObj");
+		//System.out.println("... found class: " + targetClass.getName());
+		HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<String, ObjyObject>();
+		if (instance != null) {
+			Sequence edgeSequence = instance.getEdges(targetClass);
+			java.util.List<EdgeObjyObject> edgeList = utils.getEdges(edgeSequence, querySpec.maxResult);
+			processEdgesAsOneJson(edgeList, knownNodeOids);
+		}
 	}
 
 

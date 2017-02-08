@@ -14,6 +14,7 @@ public class SchemaHelper {
     public static long addressClassNumber = 0;
     public static long inputClassNumber = 0;
     public static long outputClassNumber = 0;
+    public static long tagClassNumber = 0;
 
     // Map class name to the label to send to the GUI.
     public static HashMap<String, String> labelMapper = new HashMap<String, String>();
@@ -22,7 +23,8 @@ public class SchemaHelper {
             "Transaction",
             "Address",
             "Input",
-            "Output"
+            "Output",
+            "Tag"
     };
 
     static {
@@ -31,6 +33,7 @@ public class SchemaHelper {
         labelMapper.put("Address", "Address");
         labelMapper.put("Input", "Input");
         labelMapper.put("Output", "Output");
+        labelMapper.put("Tag", "Tag");
     }
 
     public static String getInitClassName() { return initClassName; }
@@ -47,6 +50,8 @@ public class SchemaHelper {
         inputClassNumber = clazz.getClassNumber();
         clazz = com.objy.data.Class.lookupClass("Output");
         outputClassNumber = clazz.getClassNumber();
+        clazz = com.objy.data.Class.lookupClass("Tag");
+        tagClassNumber = clazz.getClassNumber();
       
     }
 

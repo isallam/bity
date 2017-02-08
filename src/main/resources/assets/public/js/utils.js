@@ -102,6 +102,17 @@ var addressTemplate = '<div class="arrow"></div>' +
 	'  </div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
+var tagTemplate = '<div class="arrow"></div>' +
+	' <div class="sigma-tooltip-header">{{label}}</div>' +
+	'  <div class="sigma-tooltip-body">' +
+	'    <table>' +
+	'      <tr><th>Label</th> <td>{{data.m_Label}}</td></tr>' +
+	'      <tr><th>Ref  </th> <td>{{data.m_Ref}}</td></tr>' +
+	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
+	'    </table>' +
+	'  </div>' +
+	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
+
 
 function getTemplate(nodeLabel) {
 	console.log("Getting template for: ", nodeLabel);
@@ -116,6 +127,8 @@ function getTemplate(nodeLabel) {
 			return outputTemplate;
     else if (nodeLabel === 'Address')
             return addressTemplate;
+    else if (nodeLabel === 'Tag')
+            return tagTemplate;
 	else
 		return simpleTemplate;
 
@@ -166,10 +179,14 @@ function getColor (node) {
 };
 
 function getUrl (type) {
-	var retVal = iconUrls[type][0]
-	if (retVal == null)
-		retVal = 'icons/blue.png'
-	return retVal
+  retVal = 'icons/blue.png'
+  if (!iconUrls[type]) {
+    console.error("Unknown URL for node: " + node);
+  }
+  else {
+    retVal = iconUrls[type][0]
+  }
+  return retVal
 };
 
 function getTrxType(node) {

@@ -294,7 +294,7 @@ var DoQuery = {
           this.sigmaGraph.renderers[0], activeState);
         dragListener.bind('startdrag', function(event) {
           window.activeState.addNodes(event.data.node.id);
-          window.activeState.addNeighbors();
+          //window.activeState.addNeighbors();
           console.log(event);
         });
         dragListener.bind('drag', function(event) {
@@ -439,6 +439,33 @@ var DoQuery = {
         this.inQuery = false;
 
     },
+    
+    /**
+     * tag()
+     * @param container
+     * @param doStatement
+     */
+    tag: function (containerName, oid, tagText)
+    {
+        this.containerName = containerName;
+        
+        var doStatement = "Create @Tag {m_Label = \"" + 
+                              tagText + "\", m_Ref = " + oid + "}";
+
+        writeToStatus("Tagging using DO: " + doStatement)
+
+        //this.clearLocateLists()
+        var msg = {"qType": "DOUpdate",
+            "qContext": this.containerName,
+            "doStatement": doStatement,
+            "objRef": oid,
+            "verbose": 2};
+        WebSocketHandler.sendMessage(msg, this);
+        document.body.style.cursor = 'wait';
+        this.inQuery = true;
+    },
+
+    
     /***
      * Process the results form the server.
      *

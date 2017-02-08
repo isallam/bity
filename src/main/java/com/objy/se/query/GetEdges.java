@@ -50,22 +50,6 @@ public class GetEdges extends QueryInterface {
 		}
 	}
 
-	protected void processNeighbors(Instance instance) {
-		ObjyObject obj = new ObjyObject();
-		obj.attributes = new HashMap<>();
-		HashMap<String, Integer> knownNodeOids = new HashMap<String, Integer>();
-
-		com.objy.data.Class targetClass = com.objy.data.Class.lookupClass("ooObj");
-		//System.out.println("... found class: " + targetClass.getName());
-		HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<String, ObjyObject>();
-		if (instance != null) {
-			Sequence edgeSequence = instance.getEdges(targetClass);
-			java.util.List<EdgeObjyObject> edgeList = Utils.getEdges(edgeSequence, querySpec.maxResult,
-					cachedObjyObjects);
-			processEdgesAsOneJson(edgeList, knownNodeOids);
-		}
-	}
-
 	public void completeStat() {
 		this.stat.addProperty("query", "find_vertex");
 		this.stat.addProperty("doStatement", querySpec.getDoStatement());

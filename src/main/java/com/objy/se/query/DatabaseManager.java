@@ -59,6 +59,8 @@ public class DatabaseManager {
 		{
 			ex.printStackTrace();
 		}
+        // make sure we have the tag class created.
+        //ExecuteDOUpdate.createSchema();
 	}
 
 	private void setPropertyFileName(String value) {

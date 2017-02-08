@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 
 public class ExecuteDO extends QueryInterface {
 	private java.util.List<EdgeObjyObject> toProcessEdgeList = new ArrayList<>();
+    
 	final static Logger logger = LoggerFactory.getLogger(GetEdges.class);
 
 	public ExecuteDO(DatabaseManager manager, QuerySpec querySpec,
@@ -52,7 +53,7 @@ public class ExecuteDO extends QueryInterface {
 				Variable resultVar = null;
 				LogicalType resultVarType = null;
 				HashMap<String, Integer> sentNodeData = new HashMap<String, Integer>();
-				HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<String, ObjyObject>();
+				//HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<String, ObjyObject>();
 				int count = 0;
 				while (numResults < querySpec.maxResult && resultItr.hasNext()) {
 					resultVar = resultItr.next();
@@ -61,7 +62,7 @@ public class ExecuteDO extends QueryInterface {
 					if (resultVarType.equals(LogicalType.INSTANCE)) {
 						Instance instance = resultVar.instanceValue();
 
-						ObjyObject objyObject = Utils.handleInstance(instance, cachedObjyObjects);
+						ObjyObject objyObject = utils.handleInstance(instance);
 
 						// dump the results attributes...
 						//System.out.println("... attributes: " + objyObject.attributes.toString());

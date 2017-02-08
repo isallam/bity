@@ -16,21 +16,22 @@ import static com.objectivity.backend.impl.QueryImpl.OID_ATTR_NAME;
 
 public class Utils {
 
+  
 	public static final String PATH_ATTRIBUTE = "__path__";
-
-	public static boolean isInternalClass(String className) {
-		boolean retValue = (className.compareTo("financial.TimeSegment") == 0);
-		return retValue;
-	}
-
+    private HashMap<String, ObjyObject> cachedObjyObjects = new HashMap<>();
+  
+//	public static boolean isInternalClass(String className) {
+//		boolean retValue = (className.compareTo("financial.TimeSegment") == 0);
+//		return retValue;
+//	}
+//
 	/**
 	 *
 	 * @param inst
 	 * @return
 	 * @throws Exception
 	 */
-	public static ObjyObject handleInstance(Instance inst,
-											HashMap<String, ObjyObject> cachedObjyObject) throws Exception
+	public ObjyObject handleInstance(Instance inst) throws Exception
 	{
 		//treat all DO projections as if they were objects
 		ObjyObject obj = new ObjyObject();
@@ -51,7 +52,7 @@ public class Utils {
 			{
 				Variable walkVar = inst.getAttributeValue(pathAttrib);
 				Walk walk = walkVar.walkValue();
-				java.util.List<EdgeObjyObject> edgeList = getEdges(walk.edges(), -1 /*all edges */, cachedObjyObject);
+				java.util.List<EdgeObjyObject> edgeList = getEdges(walk.edges(), -1 /*all edges */);
 				obj.attributes.put(PATH_ATTRIBUTE, edgeList);
 				obj._class = "WALK";
 				//System.out.println("... this is a WALK");
@@ -94,8 +95,7 @@ public class Utils {
 		return obj;
 	}
 
-	public static java.util.List<EdgeObjyObject> getEdges(Sequence edgeSequence, int maxResults,
-														  HashMap<String, ObjyObject> cachedObjyObjects) {
+	public java.util.List<EdgeObjyObject> getEdges(Sequence edgeSequence, int maxResults) {
 		Iterator<Variable> edgeItr = edgeSequence.iterator();
 		Edge edge = null;
 		int count = 0;
@@ -106,13 +106,13 @@ public class Utils {
 				String fromOid = edge.from().getObjectId().toString();
 				ObjyObject objFrom = cachedObjyObjects.get(fromOid);
 				if (objFrom == null) {
-					objFrom = handleInstance(edge.from(), cachedObjyObjects);
+					objFrom = handleInstance(edge.from());
 					cachedObjyObjects.put(fromOid, objFrom);
 				}
 				String toOid = edge.to().getObjectId().toString();
 				ObjyObject objTo = cachedObjyObjects.get(toOid);
 				if (objTo == null) {
-					objTo = handleInstance(edge.to(), cachedObjyObjects);
+					objTo = handleInstance(edge.to());
 					cachedObjyObjects.put(toOid, objTo);
 				}
 

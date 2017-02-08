@@ -1,8 +1,6 @@
 package com.objy.se.query.util;
 
 import com.objectivity.backend.helper.ObjectHelper;
-import com.objectivity.backend.helper.ObjectivityHelper;
-import com.objectivity.definitions.object.ArrayAttribute;
 import com.objy.data.*;
 
 /**
