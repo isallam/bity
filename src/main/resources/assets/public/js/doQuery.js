@@ -435,6 +435,8 @@ var DoQuery = {
             Utils.eraseElem('select-nodes-btn')
         }
 
+        if (sGraph.graph.nodes().length > 2)
+          Utils.ratifyElem('select-nodes-pattern-btn');
 
         this.inQuery = false;
 

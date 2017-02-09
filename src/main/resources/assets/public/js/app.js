@@ -23,8 +23,11 @@ function doInit() {
     //Utils.eraseElem('table-btn');
 
 	// hide similarity buttton
-	Utils.eraseElem('similar-nodes-btn')
-	Utils.eraseElem('select-nodes-btn')
+	Utils.eraseElem('similar-nodes-btn');
+	Utils.eraseElem('select-nodes-btn');
+    // hide pattern button
+    Utils.eraseElem('similar-nodes-pattern-btn');
+    Utils.eraseElem('select-nodes-pattern-btn');
 
 	// hide all the extra GraphContainers.
 	hideOtherGraphContainers();
@@ -123,6 +126,23 @@ function doNodeSimilarity() {
 	Utils.eraseElem('similar-nodes-btn')
 	DoQuery.lasso.deactivate();
 	DoQuery.doSimilarity(DoQuery)
+}
+
+function doSelectPatternNodes() {
+		// activate lasso
+		DoQuery.lasso.activate();
+		DoQuery.selectedNodes = null;
+		Utils.eraseElem('select-nodes-pattern-btn')
+		Utils.ratifyElem('similar-nodes-pattern-btn')
+}
+
+function doSimilarityPatternNodes() {
+	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
+		return;
+
+	Utils.eraseElem('similar-nodes-pattern-btn')
+	DoQuery.lasso.deactivate();
+	DoQuery.doPatternSearch(DoQuery)
 }
 
 function hideOtherGraphContainers() {
