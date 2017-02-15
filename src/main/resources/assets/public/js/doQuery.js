@@ -684,6 +684,48 @@ var DoQuery = {
          }
         
     },
+    
+        /****
+     *
+     * @param controller
+     */
+    doPatternSimilarity: function (controller) {
+
+        // // TBD... this function can be written better!!!!! IS:
+         this.inSimilarityState = true;
+         
+         //objList = [];
+         var patternList = [];
+         controller.selectedNodes.forEach(function (n) {
+            var data = n.data;
+            var className = n.label;
+            var paramList = [];
+            var edge = null;
+            for (var prop in data) {
+              //console.log("prop; ", prop, " - value: ", data[prop]);
+              if (isString(data[prop]) && data[prop].startsWith("#")) {
+                // this is a potential edge.
+                edge = {attr: prop, ref: data[prop]}
+              } else {
+                var param = {key: prop, value: data[prop]};
+                paramList.push(param);
+              }
+            }
+            var patternElem = {id: n.id, className: className, edge: edge, paramList: paramList};
+            patternList[n.id] = patternElem;
+        });
+        console.log(patternList);
+        var edgeList = getEdges(patternList, this.sigmaGraph);
+        var patternString = formPattern(patternList, edgeList);
+
+        if (patternList.length  < 2)
+           writeToStatus(" Not enough data to do Pattern Similarity...");
+         
+        writeToStatus("Pattern: " + patternString);
+        var queryString = "Match p = " + patternString + " return p;";
+        getQueryBox().value = queryString;
+    },
+
      prepGraphForSimilarity: function (config) {
     
          var gc1 = document.getElementById(config.element);

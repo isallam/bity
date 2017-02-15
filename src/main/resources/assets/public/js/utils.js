@@ -60,7 +60,7 @@ var transactionTemplate = '<div class="arrow"></div>' +
 	' <div class="sigma-tooltip-header">{{label}}</div>' +
 	'  <div class="sigma-tooltip-body">' +
 	'    <table>' +
-	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
+//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
 	'      <tr><th>Hash</th> <td>{{data.m_Hash}}</td></tr>' +
 	'      <tr><th># Inputs</th> <td>{{data.m_Inputs}}</td></tr>' +
 	'      <tr><th># Outputs</th> <td>{{data.m_Outputs}}</td></tr>' +
@@ -73,7 +73,7 @@ var inputTemplate = '<div class="arrow"></div>' +
 	' <div class="sigma-tooltip-header">{{label}}</div>' +
 	'  <div class="sigma-tooltip-body">' +
 	'    <table>' +
-	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
+//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
 	'      <tr><th>isCoinBase</th> <td>{{data.m_IsCoinBase}}</td></tr>' +
 	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
 	'    </table>' +
@@ -84,7 +84,7 @@ var outputTemplate = '<div class="arrow"></div>' +
 	' <div class="sigma-tooltip-header">{{label}}</div>' +
 	'  <div class="sigma-tooltip-body">' +
 	'    <table>' +
-	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
+//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
 	'      <tr><th>Value</th> <td>{{data.m_Value}}</td></tr>' +
 	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
 	'    </table>' +
@@ -203,3 +203,70 @@ function getTrxType(node) {
 	return trxType;
 }
 
+function isString (obj) {
+  return (Object.prototype.toString.call(obj) === '[object String]');
+}
+
+function formPattern(patternList, edgeList) {
+  var patternString = "";
+  var first = true;
+  edgeList.forEach(function(edgeElem) {
+    // find source
+    var sourceNode = patternList[edgeElem.source];
+    //var attribute = elem.n.data;
+    if (!first){
+//      if (sourceNode.edge != null)
+//        patternString += "-[:" + sourceNode.edge.attr +"]->";
+//      else 
+        patternString += "-->";
+    } else {
+      first = false;
+    }
+    var paramListString = "";
+    var paramListFirst = true;
+    sourceNode.paramList.forEach(function (param) {
+      var attributeString = attributeToDO(sourceNode.className, param);
+      if (attributeString != null) {
+        if (!paramListFirst) {
+          paramListString += " AND ";
+        } else {
+          paramListFirst = false;
+        }
+        paramListString += attributeString;
+      }
+    });
+    patternString += "(:" + sourceNode.className + " { " + paramListString + "})";
+  });
+  return patternString;
+}
+
+function getEdges(patternList, sigmaGraph)
+{
+  var edgeList = [];
+  var ids = [];
+  for (var key in patternList) {
+    ids.push(key);
+  }
+  sigmaGraph.graph.edges().forEach(function (e) {
+    if (ids.includes(e.source) && ids.includes(e.target)) {
+      var edge = {source: e.source, target: e.target};
+      edgeList.push(edge);
+    }
+  });
+  return edgeList;
+}
+
+function attributeToDO(className, attr) {
+  if (className !== 'Block' && attr.key === 'm_Id')
+    return null; // we'll ignore all other m_Id except for block.
+  var attrName = attr.key;
+  var attrValue = attr.value;
+  if (attrName === 'm_Inputs' || attrName === 'm_Outputs')
+    attrName = "LENGTH(" + attrName + ")";
+  
+  if (typeof attrValue === 'string')
+    attrValue = '"' + attrValue + '"';
+
+  var attributeString = attrName + ' == ' + attrValue;
+  return attributeString;
+}

@@ -128,7 +128,7 @@ function doNodeSimilarity() {
 	DoQuery.doSimilarity(DoQuery)
 }
 
-function doSelectPatternNodes() {
+function doPatternSelect() {
 		// activate lasso
 		DoQuery.lasso.activate();
 		DoQuery.selectedNodes = null;
@@ -136,13 +136,13 @@ function doSelectPatternNodes() {
 		Utils.ratifyElem('similar-nodes-pattern-btn')
 }
 
-function doSimilarityPatternNodes() {
+function doPatternSimilarity() {
 	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
 		return;
 
 	Utils.eraseElem('similar-nodes-pattern-btn')
 	DoQuery.lasso.deactivate();
-	DoQuery.doPatternSearch(DoQuery)
+	DoQuery.doPatternSimilarity(DoQuery)
 }
 
 function hideOtherGraphContainers() {
