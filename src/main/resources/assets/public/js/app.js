@@ -103,6 +103,10 @@ function doLayout2View() {
   DoQuery.doNicerLayout();
 }
 
+function doLayout3View() {
+  DoQuery.doTreeLayout();
+}
+
 function toggleModelDisplay() {
     Utils.toggle('model-graph')
 }

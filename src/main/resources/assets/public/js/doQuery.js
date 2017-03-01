@@ -275,6 +275,13 @@ var DoQuery = {
             console.log(e.type);
         });
 
+        // configure the Dagre lyoutout
+        var dgListener = sigma.layouts.dagre.configure(this.sigmaGraph, {
+          rankdir: 'TB',
+          easing: 'quadraticInOut',
+          duration: 800
+        });
+
 
         this.lasso = this.configureLasso(this.sigmaGraph);
         this.configureLocate();
@@ -318,7 +325,11 @@ var DoQuery = {
         sigma.layouts.fruchtermanReingold.start(window.sigmaGraph);
     },
     
-    /***
+    doTreeLayout: function() {
+      sigma.layouts.dagre.start(window.sigmaGraph);
+    },
+
+  /***
      *
      * @param nodeId
      * @param handler
