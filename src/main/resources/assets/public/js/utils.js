@@ -240,21 +240,119 @@ function formPattern(patternList, edgeList) {
   return patternString;
 }
 
-function getEdges(patternList, sigmaGraph)
+function printInfo(collectedInfo) {
+  console.log(collectedInfo.classes);
+  if (collectedInfo.next != null)
+  {
+    console.log(' --> ')
+    printInfo(collectedInfo.next);
+  }
+}
+
+function analyzePathElement(pathElement, collectedInfo)
 {
-  var edgeList = [];
+  for (var key in pathElement.to) {
+    if (collectedInfo.next == null)
+      collectedInfo.next = {};
+    var nextElement = pathElement.to[key];
+    analyzePathElement(nextElement, collectedInfo.next);
+  }
+  
+  if (collectedInfo.classes == null) {
+    collectedInfo.classes = []; 
+    collectedInfo.objects = [];
+  }
+  collectedInfo.classes.push(pathElement.from.className);
+  collectedInfo.objects.push(pathElement.from);
+  
+}
+
+function analyzePaths(pathList) 
+{ 
+  var collectedInfos = [];
+  for (var key in pathList) {
+    var collectedInfo = {}
+    analyzePathElement(pathList[key], collectedInfo);
+    collectedInfos.push(collectedInfo);
+  }
+  return collectedInfos;
+}
+
+function findEntityWithSource(elemEntity, id)
+{
+  var elem = null;
+  if (elemEntity.from.id === id) {
+    elem = elemEntity;
+  } else if (elemEntity.to != []) {
+    for (var i = 0; i < elemEntity.to.length; i++) {
+      elem = findEntityWithSource(elemEntity.to[i], id)
+      if (elem !== null)
+        return elem;
+    }
+  }
+  return elem;
+}
+
+function findEntityInPath(pathList, id)
+{
+  var elem = null;
+  for (var i = 0; i < pathList.length; i++) {
+      elem = findEntityWithSource(pathList[i], id);
+      if (elem !== null)
+        break;
+  }
+  return elem;
+}
+
+function getPaths(nodeList, sigmaGraph)
+{
+  var pathList = [];
   var ids = [];
-  for (var key in patternList) {
+  for (var key in nodeList) {
     ids.push(key);
   }
   sigmaGraph.graph.edges().forEach(function (e) {
+    
     if (ids.includes(e.source) && ids.includes(e.target)) {
-      var edge = {source: e.source, target: e.target};
-      edgeList.push(edge);
+
+      var entity = findEntityInPath(pathList, e.source);
+      
+      if (entity == null)
+      {
+        // create an entity
+        entity = {
+              from: nodeList[e.source],
+              to: [] //[{id: e.target, data: nodeList[e.target]}]
+            };
+        pathList.push(entity);
+      }
+      if (entity !== null) // add the "to" information
+      {
+        // to avoid loops, then we need to check if our target for this entry is
+        // already in the path.
+        if (findEntityInPath(pathList, e.target) == null)
+        {
+          entity.to.push({ 
+              from: nodeList[e.target],
+              to: []
+            });
+        }
+      }
+//      else {
+//        if (findEntityInPath(pathList, e.target) == null)
+//        {
+//          var aTarget = {
+//              from: nodeList[e.target],
+//              to: []
+//            };
+//          entity.to.push(aTarget);
+//        }
+//      }
     }
   });
-  return edgeList;
+  return pathList;
 }
+
 
 function attributeToDO(className, attr) {
   if (className !== 'Block' && attr.key === 'm_Id')
@@ -269,4 +367,72 @@ function attributeToDO(className, attr) {
 
   var attributeString = attrName + ' == ' + attrValue;
   return attributeString;
+}
+
+function findElementWithSource_working_but_need_refactoring(elemEntity, id)
+{
+  var elem = null;
+  if (elemEntity.from.id === id) {
+    elem = elemEntity;
+  } else if (elemEntity.to != {}) {
+    for (var key in elemEntity.to) {
+      elem = findElementWithSource(elemEntity.to[key], id)
+      if (elem != null)
+        return elem;
+    }
+  }
+  return elem;
+}
+
+function getPaths_working_but_need_refactoring(nodeList, sigmaGraph)
+{
+  var pathList = {};
+  var ids = [];
+  for (var key in nodeList) {
+    ids.push(key);
+  }
+  sigmaGraph.graph.edges().forEach(function (e) {
+    if (ids.includes(e.source) && ids.includes(e.target)) {
+      var elem = pathList[e.source];
+      console.log("ArraySize1: ", Object.keys(pathList).length);
+      //console.log("ArraySize2: ", pathList.keys().length);
+      if (elem == null && Object.keys(pathList).length > 0) {
+        // go through all elements to see if the e.source is actually a target id inside
+        // then add the target to such element...
+        for (var key in pathList) {
+          elem = findElementWithSource(pathList[key], e.source);
+          if (elem != null)
+            break;
+        }
+      }
+      
+      if (elem == null)
+      {
+          pathList[e.source] = {
+              from: nodeList[e.source],
+              to: {} //[{id: e.target, data: nodeList[e.target]}]
+            };
+            // to avoid loops, then we need to check if our target for this entry is
+            // already in the path.
+            //if (!nodeInPath(e.target))
+            {
+              pathList[e.source].to[e.target] = { 
+                  from: nodeList[e.target],
+                  to: {}
+                };
+            }
+      }
+      else {
+        //if (!nodeInPath(e.target))
+        {
+          var aTarget = {
+              from: nodeList[e.target],
+              to: {}
+            };
+          elem.to[e.target] = aTarget;
+        }
+      }
+    }
+  });
+  return pathList;
 }

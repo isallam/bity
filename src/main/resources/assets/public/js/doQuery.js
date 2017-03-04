@@ -250,7 +250,7 @@ var DoQuery = {
            autoStop: true,
            background: true,
          	scalingRatio: 2,
-         	gravity: 4,
+         	gravity: 1.8,
            	easing: 'cubicInOut',
          	//easing: 'quadraticInOut'
             randomize: 'locally'
@@ -265,7 +265,7 @@ var DoQuery = {
         // Configure the Fruchterman-Reingold algorithm:
         var frListener = sigma.layouts.fruchtermanReingold.configure(this.sigmaGraph, {
             gravity: 1.8,
-            iterations: 100, //500,
+            iterations: 200, //100, //500,
             easing: 'quadraticInOut', //'cubicInOut',
             duration: 100 //800
         });
@@ -282,6 +282,8 @@ var DoQuery = {
           duration: 800
         });
 
+        // set the current layout to the force one
+        this.currentLayout = this.doForceLayout;
 
         this.lasso = this.configureLasso(this.sigmaGraph);
         this.configureLocate();
@@ -318,15 +320,18 @@ var DoQuery = {
     
     doForceLayout: function() {
         sigma.layouts.startForceLink();
+        this.currentLayout = this.doForceLayout
     },
     
     doNicerLayout: function() {
         // Start the Fruchterman-Reingold algorithm:
         sigma.layouts.fruchtermanReingold.start(window.sigmaGraph);
+        this.currentLayout = this.doNicerLayout
     },
     
     doTreeLayout: function() {
       sigma.layouts.dagre.start(window.sigmaGraph);
+        this.currentLayout = this.doTreeLayout
     },
 
   /***
@@ -365,8 +370,8 @@ var DoQuery = {
   //            sGraph.stopForceAtlas2();
   //            console.log("ForceAtlas2 stopped")
   //        }, 2000);
-        sigma.layouts.startForceLink();
-        
+        this.currentLayout();
+          
         this.clearLocateLists();
 
         var resultsTable = document.getElementById('resultsTable');
@@ -701,35 +706,39 @@ var DoQuery = {
      * @param controller
      */
     doPatternSimilarity: function (controller) {
-
         // // TBD... this function can be written better!!!!! IS:
          this.inSimilarityState = true;
          
-         //objList = [];
-         var patternList = [];
+         var nodeList = {};
          controller.selectedNodes.forEach(function (n) {
             var data = n.data;
-            var className = n.label;
-            var paramList = [];
-            var edge = null;
-            for (var prop in data) {
-              //console.log("prop; ", prop, " - value: ", data[prop]);
-              if (isString(data[prop]) && data[prop].startsWith("#")) {
-                // this is a potential edge.
-                edge = {attr: prop, ref: data[prop]}
-              } else {
-                var param = {key: prop, value: data[prop]};
-                paramList.push(param);
-              }
-            }
-            var patternElem = {id: n.id, className: className, edge: edge, paramList: paramList};
-            patternList[n.id] = patternElem;
+//            var paramList = {};
+//            var edge = null;
+//            for (var prop in data) {
+//              //console.log("prop; ", prop, " - value: ", data[prop]);
+//              if (isString(data[prop]) && data[prop].startsWith("#")) {
+//                // this is a potential edge.
+//                edge = {attr: prop, ref: data[prop]}
+//              } else {
+//                var param = {key: prop, value: data[prop]};
+//                paramList.push(param);
+//              }
+//            }
+//            nodeList[n.id] = {id: n.id, className: n.label, edge: edge, paramList: paramList};
+            nodeList[n.id] = {id: n.id, className: n.label, attributes: data};
         });
-        console.log(patternList);
-        var edgeList = getEdges(patternList, this.sigmaGraph);
-        var patternString = formPattern(patternList, edgeList);
+        console.log(nodeList);
+        var pathList = getPaths(nodeList, this.sigmaGraph);
+        console.log("PathList: ", pathList);
+        var collectedInfos = analyzePaths(pathList);
+        console.log("CollecteInfos: ", collectedInfos);
+        collectedInfos.forEach(function(info) {
+          console.log("ELEM:")
+          printInfo(info);
+        });
+        var patternString = ""//formPattern(nodeList, pathList);
 
-        if (patternList.length  < 2)
+        if (nodeList.length  < 2)
            writeToStatus(" Not enough data to do Pattern Similarity...");
          
         writeToStatus("Pattern: " + patternString);

@@ -4,8 +4,28 @@
  * Main app file
  */
 
-var qboxDefaultText = 'from Address return *';
+var querys = {
+  'Q01' : 'from Block where m_Id==99 return *',
+  'Q02' : 'MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)' +
+            '-[:m_Outputs]->(:Output)-->(:Address) RETURN p',
+  'Q03' : 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
+            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
+            '-->() RETURN p',
+  'Q04' : 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
+              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p',
+  'Q05' : 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->()-->() return p',
+  'Q06' : 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p',
+  'Q07' : 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p',
+  'Q08' : 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})' +
+            '-->(:Input {m_IsCoinBase == false}) return p'
+};
 
+//var qboxDefaultText = 'from Address return *';
+var qboxDefaultText = querys['Q05'];
+
+function getQuery(queryKey) {
+  return querys[queryKey];
+}
 
 function writeToStatus(text) {
     var statusText = document.getElementById('statusBox');
@@ -96,15 +116,18 @@ function doResetView() {
 }
 
 function doLayout1View() {
-  DoQuery.doForceLayout();
+  DoQuery.currentLayout = DoQuery.doForceLayout;
+  DoQuery.currentLayout();
 }
 
 function doLayout2View() {
-  DoQuery.doNicerLayout();
+  DoQuery.currentLayout = DoQuery.doNicerLayout;
+  DoQuery.currentLayout();
 }
 
 function doLayout3View() {
-  DoQuery.doTreeLayout();
+  DoQuery.currentLayout = DoQuery.doTreeLayout;
+  DoQuery.currentLayout();
 }
 
 function toggleModelDisplay() {
@@ -164,34 +187,41 @@ function hideOtherGraphContainers() {
 function processSelection() {
     var qOption = document.getElementById("qOption");
     var queryString = getQueryBox().value;
-    if (qOption.value == 'GetBlock') {
-        queryString = 'from Block where m_Id==99 return *';
-    } else if (qOption.value == 'BlockToAddress') {
-        //queryString = 'Match p=(:Person)-[*1..2]->(:Email) return p';
-        queryString = "MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)" +
-            "-[:m_Outputs]->(:Output)-->(:Address) RETURN p";
-    } else if (qOption.value === 'SatoshiAnalysis1') {
-      //queryString = 'MATCH p = (:Block{m_Id=="0"})-[:m_Transactions]->(:Transaction)' + 
-      //      '-[:m_Outputs]->(:Output)-->(:Address)-[:m_Outputs]->(:Output)-->(:Transaction)' +
-      //      '-[:m_Inputs]->(:Input{m_IsCoinBase == false}) RETURN p'
-      queryString = 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
-            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
-            '-->() RETURN p';
-    } else if (qOption.value === 'Wikileaks1') {
-      queryString = 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
-              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p';
-    } else if (qOption.value === 'NotGenerated1') {
-      queryString = 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p';
-    } else if (qOption.value === 'NotGenerated2') {
-      queryString = 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})-->(:Input {m_IsCoinBase == false}) return p';
-    } else if (qOption.value == 'OneToMany') {
-      queryString = 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->() return p';
-    } else if (qOption.value == 'ManyToOne') {
-      queryString = 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p';
-    }
-    getQueryBox().value = queryString;
+    getQueryBox().value = getQuery(qOption.value);
     writeToStatus("Executing: " + qOption.value);
 }
+
+//function processSelection() {
+//    var qOption = document.getElementById("qOption");
+//    var queryString = getQueryBox().value;
+//    if (qOption.value == 'GetBlock') {
+//        queryString = 'from Block where m_Id==99 return *';
+//    } else if (qOption.value == 'BlockToAddress') {
+//        //queryString = 'Match p=(:Person)-[*1..2]->(:Email) return p';
+//        queryString = "MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)" +
+//            "-[:m_Outputs]->(:Output)-->(:Address) RETURN p";
+//    } else if (qOption.value === 'SatoshiAnalysis1') {
+//      //queryString = 'MATCH p = (:Block{m_Id=="0"})-[:m_Transactions]->(:Transaction)' + 
+//      //      '-[:m_Outputs]->(:Output)-->(:Address)-[:m_Outputs]->(:Output)-->(:Transaction)' +
+//      //      '-[:m_Inputs]->(:Input{m_IsCoinBase == false}) RETURN p'
+//      queryString = 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
+//            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
+//            '-->() RETURN p';
+//    } else if (qOption.value === 'Wikileaks1') {
+//      queryString = 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
+//              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p';
+//    } else if (qOption.value === 'NotGenerated1') {
+//      queryString = 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p';
+//    } else if (qOption.value === 'NotGenerated2') {
+//      queryString = 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})-->(:Input {m_IsCoinBase == false}) return p';
+//    } else if (qOption.value == 'OneToMany') {
+//      queryString = 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->() return p';
+//    } else if (qOption.value == 'ManyToOne') {
+//      queryString = 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p';
+//    }
+//    getQueryBox().value = queryString;
+//    writeToStatus("Executing: " + qOption.value);
+//}
 
 function doTag() {
   var elem = document.getElementById("tag-text");
