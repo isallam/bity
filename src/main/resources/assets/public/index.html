@@ -149,7 +149,7 @@
                     <option value='Q07'>Not Generated 1</option>
                     <option value='Q08'>Not Generated 2</option>
                 </select>
-                <input type="button" class="app-btn" value="Run" onclick="doQuery()"/>
+                <input type="button" value="Run" onclick="doQuery()"/>
             </div>
             <textarea id="qbox" cols="100" rows="3"></textarea>
             <div id="max-results-pane">
@@ -217,6 +217,17 @@
                 <div>
                     <img src="icons/similar_p.png" alt="Pattern" width='24'
                          id="similar-nodes-pattern-btn" onclick="doPatternSimilarity()"/>
+                    <!-- Modal configuration for selected pattern -->
+                    <div id="pattern-config">
+                      <!-- Modal content -->
+                      <div id="pattern-config-content">
+                        <p>... PATTERN ...</p>
+                        <div id="pattern-config-content-internal"></div>
+                        <div id="class-attributes-config" class="sigma-tooltip"></div>
+                        <input type="button" id="done-pattern-config" class="app-btn" value="Done"/>
+                      </div>
+
+                    </div>
                 </div>
                 <!--
                 <div class="tableGroup">

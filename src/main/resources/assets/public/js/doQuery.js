@@ -712,19 +712,6 @@ var DoQuery = {
          var nodeList = {};
          controller.selectedNodes.forEach(function (n) {
             var data = n.data;
-//            var paramList = {};
-//            var edge = null;
-//            for (var prop in data) {
-//              //console.log("prop; ", prop, " - value: ", data[prop]);
-//              if (isString(data[prop]) && data[prop].startsWith("#")) {
-//                // this is a potential edge.
-//                edge = {attr: prop, ref: data[prop]}
-//              } else {
-//                var param = {key: prop, value: data[prop]};
-//                paramList.push(param);
-//              }
-//            }
-//            nodeList[n.id] = {id: n.id, className: n.label, edge: edge, paramList: paramList};
             nodeList[n.id] = {id: n.id, className: n.label, attributes: data};
         });
         console.log(nodeList);
@@ -737,13 +724,12 @@ var DoQuery = {
           printInfo(info);
         });
         var patternString = ""//formPattern(nodeList, pathList);
-
-        if (nodeList.length  < 2)
-           writeToStatus(" Not enough data to do Pattern Similarity...");
          
-        writeToStatus("Pattern: " + patternString);
-        var queryString = "Match p = " + patternString + " return p;";
-        getQueryBox().value = queryString;
+        //writeToStatus("Pattern: " + patternString);
+        //var queryString = "Match p = " + patternString + " return p;";
+        //getQueryBox().value = queryString;
+        
+        return collectedInfos;
     },
 
      prepGraphForSimilarity: function (config) {

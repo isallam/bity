@@ -21,7 +21,7 @@ var querys = {
 };
 
 //var qboxDefaultText = 'from Address return *';
-var qboxDefaultText = querys['Q05'];
+var qboxDefaultText = querys['Q07'];
 
 function getQuery(queryKey) {
   return querys[queryKey];
@@ -168,8 +168,114 @@ function doPatternSimilarity() {
 		return;
 
 	Utils.eraseElem('similar-nodes-pattern-btn')
-	DoQuery.lasso.deactivate();
-	DoQuery.doPatternSimilarity(DoQuery)
+    DoQuery.lasso.deactivate();
+	var collectedInfos = DoQuery.doPatternSimilarity(DoQuery)
+
+    var configDiv = document.getElementById('pattern-config-content-internal');
+    var createdElements = createPatternNodes(collectedInfos[0], configDiv);
+
+    var modal = document.getElementById('pattern-config');
+    modal.style.display = 'block';
+
+    document.getElementById('done-pattern-config').onclick = function() {  
+      modal.style.display = 'none';
+      console.log('... we will search for pattern...');
+      // remove the created elements.
+      for (var i = 0; i < createdElements.length; i++) {
+        var parent = createdElements[i].parentElement;
+        parent.removeChild(createdElements[i]);
+      }
+      window.currentAttributesHolder = null;
+    };  
+    
+}
+
+function createAttrElement(attrName, attrValue, parentElem) 
+{
+  var tr = document.createElement('tr');
+  var tdName = document.createElement('td');
+  var tdValue = document.createElement('td');
+  var tdNameText = document.createTextNode(attrName);
+  var tdValueText = document.createTextNode(attrValue);
+  
+  tdName.appendChild(tdNameText);
+  tdValue.appendChild(tdValueText);
+  tr.appendChild(tdName);
+  tr.appendChild(tdValue);
+  parentElem.appendChild(tr);
+  
+}
+
+function createPatternNodes(collectedInfo, parentDiv)
+{
+  var elements = [];
+  var idBase = 'CEID_';
+  var attrsPostfix = '_attrs';
+  var count = 1;
+
+  var classAttributesConfig = document.getElementById('class-attributes-config');
+
+  while (true) 
+  {
+    //Create an input type dynamically.
+    var element = document.createElement("input");
+    elements.push(element);
+    
+    //Assign different attributes to the element.
+    element.setAttribute("type", "button");
+    //element.setAttribute("name", "Test Name");
+    element.id = idBase + count;
+    element.style.width = '100px';
+    element.style.height = '30px';
+    element.style.borderRadius = '25px';
+    element.value = collectedInfo.classes[0];
+    element.payload = collectedInfo;
+    element.onclick = function() {
+      if (window.currentAttributesHolder != null)
+        window.currentAttributesHolder.style.display = 'none';
+      //console.log('we need to display info from: ', this.payload.objects);
+      var objectInfo = this.payload.objects[0];
+      var attributesHolder = document.getElementById(this.id+attrsPostfix);
+      attributesHolder.style.display = 'block';
+      window.currentAttributesHolder = attributesHolder;
+    }
+
+    parentDiv.appendChild(element);
+
+    // create the attribute holder.
+    var attributesHolder = document.createElement("table");
+    elements.push(attributesHolder);
+    attributesHolder.id = element.id + attrsPostfix;
+    attributesHolder.style.display = 'none';
+    var classAttributes = collectedInfo.objects[0].attributes;
+    for (var prop in classAttributes) {
+      //console.log(">", prop, " : ", classAttributes[prop])
+      createAttrElement(prop, classAttributes[prop], attributesHolder)
+    }
+    
+    classAttributesConfig.appendChild(attributesHolder);
+
+    if (collectedInfo.next != null)
+    {
+      //Create arrows
+      var arrow = document.createElement("Label");
+      elements.push(arrow);
+      
+      arrow.style = "font-weight:normal";
+
+      arrow.innerHTML = "-->";     
+      //Append the element to the Div
+      parentDiv.appendChild(arrow);
+    }
+    
+    if (collectedInfo.next == null)
+      break;
+    
+    collectedInfo = collectedInfo.next;
+    count++;
+  }  
+  
+  return elements;
 }
 
 function hideOtherGraphContainers() {
@@ -191,37 +297,6 @@ function processSelection() {
     writeToStatus("Executing: " + qOption.value);
 }
 
-//function processSelection() {
-//    var qOption = document.getElementById("qOption");
-//    var queryString = getQueryBox().value;
-//    if (qOption.value == 'GetBlock') {
-//        queryString = 'from Block where m_Id==99 return *';
-//    } else if (qOption.value == 'BlockToAddress') {
-//        //queryString = 'Match p=(:Person)-[*1..2]->(:Email) return p';
-//        queryString = "MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)" +
-//            "-[:m_Outputs]->(:Output)-->(:Address) RETURN p";
-//    } else if (qOption.value === 'SatoshiAnalysis1') {
-//      //queryString = 'MATCH p = (:Block{m_Id=="0"})-[:m_Transactions]->(:Transaction)' + 
-//      //      '-[:m_Outputs]->(:Output)-->(:Address)-[:m_Outputs]->(:Output)-->(:Transaction)' +
-//      //      '-[:m_Inputs]->(:Input{m_IsCoinBase == false}) RETURN p'
-//      queryString = 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
-//            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
-//            '-->() RETURN p';
-//    } else if (qOption.value === 'Wikileaks1') {
-//      queryString = 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
-//              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p';
-//    } else if (qOption.value === 'NotGenerated1') {
-//      queryString = 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p';
-//    } else if (qOption.value === 'NotGenerated2') {
-//      queryString = 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})-->(:Input {m_IsCoinBase == false}) return p';
-//    } else if (qOption.value == 'OneToMany') {
-//      queryString = 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->() return p';
-//    } else if (qOption.value == 'ManyToOne') {
-//      queryString = 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p';
-//    }
-//    getQueryBox().value = queryString;
-//    writeToStatus("Executing: " + qOption.value);
-//}
 
 function doTag() {
   var elem = document.getElementById("tag-text");
