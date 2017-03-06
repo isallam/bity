@@ -197,6 +197,9 @@ function createAttrElement(attrName, attrValue, parentElem)
   var tdValue = document.createElement('td');
   var tdNameText = document.createTextNode(attrName);
   var tdValueText = document.createTextNode(attrValue);
+
+  // make the value editable.
+  tdValue.contentEditable = true;
   
   tdName.appendChild(tdNameText);
   tdValue.appendChild(tdValueText);
@@ -222,15 +225,19 @@ function createPatternNodes(collectedInfo, parentDiv)
     elements.push(element);
     
     //Assign different attributes to the element.
-    element.setAttribute("type", "button");
-    //element.setAttribute("name", "Test Name");
+//    element.setAttribute("type", "text");
     element.id = idBase + count;
     element.style.width = '100px';
     element.style.height = '30px';
     element.style.borderRadius = '25px';
     element.value = collectedInfo.classes[0];
     element.payload = collectedInfo;
+    element.readOnly = true;
+    element.ondblclick = function() {
+      this.readOnly = false;
+    }
     element.onclick = function() {
+      this.readOnly = true;  // make sure we don't allow editing of the text
       if (window.currentAttributesHolder != null)
         window.currentAttributesHolder.style.display = 'none';
       //console.log('we need to display info from: ', this.payload.objects);
@@ -305,72 +312,3 @@ function doTag() {
   DoQuery.tag('graphContainer', oid, elem.value);
 }
 
-function doPersonAutoComplete() {
-    //console.log("GOT list auto...");
-    var elem = document.getElementById("person-select");
-    var dataList = document.getElementById("person-datalist");
-
-    //console.log("GOT: ", elem.value);
-    var doStatement = "From Person where firstName =~~\"^" + elem.value + ".*\" return *";
-
-    DoSearch.execute('person-datalist', doStatement);
-}
-
-function doDomainAutoComplete() {
-    //console.log("GOT list auto...");
-    var elem = document.getElementById("domain-select");
-    var dataList = document.getElementById("domain-datalist");
-
-    //console.log("GOT: ", elem.value);
-    var doStatement = "From Domain where domain =~~\"^" + elem.value + ".*\" return *";
-
-    DoSearch.execute('domain-datalist', doStatement);
-}
-
-//function doSearchPersonToDomain() {
-//    var personSelect = document.getElementById("person-select");
-//    var domainSelect = document.getElementById("domain-select");
-//    var personSelectVal = personSelect.value;
-//    var domainSelectVal = domainSelect.value;
-//    var findPerson = false;
-//    var findDomain = false;
-//
-//    // let's decide what to do. Either find the person, the domain, navigate or do nothing.
-//    if (personSelectVal !== "") {
-//        findPerson = true;
-//    }
-//    if (domainSelectVal !== "") {
-//        findDomain = true;
-//    }
-//
-//    if (findPerson && findDomain) {
-//        // split on firstName and lastName
-//        var names = personSelectVal.split(" ");
-//        if (names.length == 2) {
-//            var doString = "MATCH p = (:Person{firstName == \"" + names[0] +
-//                "\"AND lastName == \"" + names[1] + "\"})-[:sends]->(:Communication)" +
-//                "-[:recipient]->(:Person)-->(:Domain{domain==\"" + domainSelectVal + "\"}) RETURN p";
-//            DoQuery.execute('graphContainer', doString);
-//            Utils.ratifyElem('table-btn')
-//        } else {
-//            writeToStatus("Error identifying the name: " + names.toString());
-//        }
-//        // navigagte.
-//    }
-//    else if (findPerson) {
-//        // split on firstName and lastName
-//        var names = personSelectVal.split(" ");
-//        if (names.length == 2) {
-//            var doString = "From Person where firstName == \"" +
-//                names[0] + "\" and lastName == \"" + names[1] + "\" return *";
-//            DoQuery.execute('graphContainer', doString);
-//        } else {
-//            writeToStatus("Error identifying the name: " + names.toString());
-//        }
-//    }
-//    else if (findDomain) {
-//        var doString = "From Domain where domain == \"" +
-//            domainSelectVal + "\" return *";
-//        DoQuery.execute('graphContainer', doString);
-//    }
-//}
