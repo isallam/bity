@@ -169,10 +169,10 @@ function doPatternSimilarity() {
 
 	Utils.eraseElem('similar-nodes-pattern-btn')
     DoQuery.lasso.deactivate();
-	var collectedInfos = DoQuery.doPatternSimilarity(DoQuery)
+	var collectedInfos = DoQuery.extractPatternFromNodes(DoQuery)
 
     var configDiv = document.getElementById('pattern-config-content-internal');
-    var createdElements = createPatternNodes(collectedInfos[0], configDiv);
+    var createdElements = createPatternGuiNodes(collectedInfos[0], configDiv);
 
     var modal = document.getElementById('pattern-config');
     modal.style.display = 'block';
@@ -181,109 +181,14 @@ function doPatternSimilarity() {
       modal.style.display = 'none';
       console.log('... we will search for pattern...');
       // remove the created elements.
-      for (var i = 0; i < createdElements.length; i++) {
-        var parent = createdElements[i].parentElement;
-        parent.removeChild(createdElements[i]);
-      }
-      window.currentAttributesHolder = null;
+      cleanupPatternGuiElements(createdElements);
     };  
-    
+    // TBD... get the resulted output from configuring the pattern and execute
+    //        the DO query.
 }
 
-function createAttrElement(attrName, attrValue, parentElem) 
-{
-  var tr = document.createElement('tr');
-  var tdName = document.createElement('td');
-  var tdValue = document.createElement('td');
-  var tdNameText = document.createTextNode(attrName);
-  var tdValueText = document.createTextNode(attrValue);
 
-  // make the value editable.
-  tdValue.contentEditable = true;
-  
-  tdName.appendChild(tdNameText);
-  tdValue.appendChild(tdValueText);
-  tr.appendChild(tdName);
-  tr.appendChild(tdValue);
-  parentElem.appendChild(tr);
-  
-}
 
-function createPatternNodes(collectedInfo, parentDiv)
-{
-  var elements = [];
-  var idBase = 'CEID_';
-  var attrsPostfix = '_attrs';
-  var count = 1;
-
-  var classAttributesConfig = document.getElementById('class-attributes-config');
-
-  while (true) 
-  {
-    //Create an input type dynamically.
-    var element = document.createElement("input");
-    elements.push(element);
-    
-    //Assign different attributes to the element.
-//    element.setAttribute("type", "text");
-    element.id = idBase + count;
-    element.style.width = '100px';
-    element.style.height = '30px';
-    element.style.borderRadius = '25px';
-    element.value = collectedInfo.classes[0];
-    element.payload = collectedInfo;
-    element.readOnly = true;
-    element.ondblclick = function() {
-      this.readOnly = false;
-    }
-    element.onclick = function() {
-      this.readOnly = true;  // make sure we don't allow editing of the text
-      if (window.currentAttributesHolder != null)
-        window.currentAttributesHolder.style.display = 'none';
-      //console.log('we need to display info from: ', this.payload.objects);
-      var objectInfo = this.payload.objects[0];
-      var attributesHolder = document.getElementById(this.id+attrsPostfix);
-      attributesHolder.style.display = 'block';
-      window.currentAttributesHolder = attributesHolder;
-    }
-
-    parentDiv.appendChild(element);
-
-    // create the attribute holder.
-    var attributesHolder = document.createElement("table");
-    elements.push(attributesHolder);
-    attributesHolder.id = element.id + attrsPostfix;
-    attributesHolder.style.display = 'none';
-    var classAttributes = collectedInfo.objects[0].attributes;
-    for (var prop in classAttributes) {
-      //console.log(">", prop, " : ", classAttributes[prop])
-      createAttrElement(prop, classAttributes[prop], attributesHolder)
-    }
-    
-    classAttributesConfig.appendChild(attributesHolder);
-
-    if (collectedInfo.next != null)
-    {
-      //Create arrows
-      var arrow = document.createElement("Label");
-      elements.push(arrow);
-      
-      arrow.style = "font-weight:normal";
-
-      arrow.innerHTML = "-->";     
-      //Append the element to the Div
-      parentDiv.appendChild(arrow);
-    }
-    
-    if (collectedInfo.next == null)
-      break;
-    
-    collectedInfo = collectedInfo.next;
-    count++;
-  }  
-  
-  return elements;
-}
 
 function hideOtherGraphContainers() {
 	Utils.hide('gc1');

@@ -172,10 +172,12 @@ public abstract class QueryInterface {
 				int numElements = ((QueryArrayAttribute) mapEntry.getValue()).getNumElements();
 				jsonNodeData.addProperty(mapEntry.getKey(), numElements);
 			} else {
-                if ((mapEntry.getValue() instanceof String) ||
-                        (mapEntry.getValue() instanceof Boolean) ||
-                        (mapEntry.getValue() instanceof Integer))
-				jsonNodeData.addProperty(mapEntry.getKey(), mapEntry.getValue().toString());
+                if (mapEntry.getValue() instanceof String)
+    				jsonNodeData.addProperty(mapEntry.getKey(), mapEntry.getValue().toString());
+                else if (mapEntry.getValue() instanceof Boolean) 
+    				jsonNodeData.addProperty(mapEntry.getKey(), (Boolean) mapEntry.getValue());
+                else if (mapEntry.getValue() instanceof Number)
+    				jsonNodeData.addProperty(mapEntry.getKey(), (Number) mapEntry.getValue());
             }
 		}
 		jsonNode.add("data", jsonNodeData);

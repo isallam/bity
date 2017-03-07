@@ -191,15 +191,6 @@ function getUrl (type) {
 
 function getTrxType(node) {
 	var trxType = "";
-	if (node.label == 'Transaction') {
-		trxType = "Order"
-		if (node.data.m_Type == 'G')
-			trxType = 'CancelReplace'
-		else if (node.data.m_Type == '8')
-			trxType = 'Fill'
-		else if (node.data.m_Type == 'F')
-			trxType = 'Cancel'
-	}
 	return trxType;
 }
 
@@ -240,7 +231,14 @@ function formPattern(patternList, edgeList) {
   return patternString;
 }
 
-function printInfo(collectedInfo) {
+/*****
+ * Special function to iterate over the pattern collected info and print
+ * collected classes
+ * 
+ * @param {type} collectedInfo
+ * @returns {undefined}
+ */
+function printCollectedInfo(collectedInfo) {
   console.log(collectedInfo.classes);
   if (collectedInfo.next != null)
   {
@@ -248,111 +246,6 @@ function printInfo(collectedInfo) {
     printInfo(collectedInfo.next);
   }
 }
-
-function analyzePathElement(pathElement, collectedInfo)
-{
-  for (var key in pathElement.to) {
-    if (collectedInfo.next == null)
-      collectedInfo.next = {};
-    var nextElement = pathElement.to[key];
-    analyzePathElement(nextElement, collectedInfo.next);
-  }
-  
-  if (collectedInfo.classes == null) {
-    collectedInfo.classes = []; 
-    collectedInfo.objects = [];
-  }
-  collectedInfo.classes.push(pathElement.from.className);
-  collectedInfo.objects.push(pathElement.from);
-  
-}
-
-function analyzePaths(pathList) 
-{ 
-  var collectedInfos = [];
-  for (var key in pathList) {
-    var collectedInfo = {}
-    analyzePathElement(pathList[key], collectedInfo);
-    collectedInfos.push(collectedInfo);
-  }
-  return collectedInfos;
-}
-
-function findEntityWithSource(elemEntity, id)
-{
-  var elem = null;
-  if (elemEntity.from.id === id) {
-    elem = elemEntity;
-  } else if (elemEntity.to != []) {
-    for (var i = 0; i < elemEntity.to.length; i++) {
-      elem = findEntityWithSource(elemEntity.to[i], id)
-      if (elem !== null)
-        return elem;
-    }
-  }
-  return elem;
-}
-
-function findEntityInPath(pathList, id)
-{
-  var elem = null;
-  for (var i = 0; i < pathList.length; i++) {
-      elem = findEntityWithSource(pathList[i], id);
-      if (elem !== null)
-        break;
-  }
-  return elem;
-}
-
-function getPaths(nodeList, sigmaGraph)
-{
-  var pathList = [];
-  var ids = [];
-  for (var key in nodeList) {
-    ids.push(key);
-  }
-  sigmaGraph.graph.edges().forEach(function (e) {
-    
-    if (ids.includes(e.source) && ids.includes(e.target)) {
-
-      var entity = findEntityInPath(pathList, e.source);
-      
-      if (entity == null)
-      {
-        // create an entity
-        entity = {
-              from: nodeList[e.source],
-              to: [] //[{id: e.target, data: nodeList[e.target]}]
-            };
-        pathList.push(entity);
-      }
-      if (entity !== null) // add the "to" information
-      {
-        // to avoid loops, then we need to check if our target for this entry is
-        // already in the path.
-        if (findEntityInPath(pathList, e.target) == null)
-        {
-          entity.to.push({ 
-              from: nodeList[e.target],
-              to: []
-            });
-        }
-      }
-//      else {
-//        if (findEntityInPath(pathList, e.target) == null)
-//        {
-//          var aTarget = {
-//              from: nodeList[e.target],
-//              to: []
-//            };
-//          entity.to.push(aTarget);
-//        }
-//      }
-    }
-  });
-  return pathList;
-}
-
 
 function attributeToDO(className, attr) {
   if (className !== 'Block' && attr.key === 'm_Id')

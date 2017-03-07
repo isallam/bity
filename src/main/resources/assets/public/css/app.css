@@ -185,7 +185,7 @@ body {
     margin: auto;
     top: 10%;
     left: 10%;
-/*    padding: 10px;*/
+    padding: 10px;
     border: 2px solid #888;
     width: 80%;
     height: 80%;
@@ -231,7 +231,7 @@ body {
     width: 140px;
     background-color: rgb(249, 247, 237);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    opacity:0.8;
+    opacity:0.9;
 }
 
 .tableGroup .tableHover {
@@ -246,7 +246,7 @@ body {
     width: 400px;
     background-color: rgb(249, 247, 237);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    opacity:0.8;
+    opacity:0.9;
 }
 
 .floating-box {

@@ -701,11 +701,11 @@ var DoQuery = {
         
     },
     
-        /****
+    /****
      *
      * @param controller
      */
-    doPatternSimilarity: function (controller) {
+    extractPatternFromNodes: function (controller) {
         // // TBD... this function can be written better!!!!! IS:
          this.inSimilarityState = true;
          
@@ -714,16 +714,16 @@ var DoQuery = {
             var data = n.data;
             nodeList[n.id] = {id: n.id, className: n.label, attributes: data};
         });
-        console.log(nodeList);
+        //console.log(nodeList);
         var pathList = getPaths(nodeList, this.sigmaGraph);
-        console.log("PathList: ", pathList);
-        var collectedInfos = analyzePaths(pathList);
-        console.log("CollecteInfos: ", collectedInfos);
-        collectedInfos.forEach(function(info) {
-          console.log("ELEM:")
-          printInfo(info);
-        });
-        var patternString = ""//formPattern(nodeList, pathList);
+        //console.log("PathList: ", pathList);
+        var collectedInfos = processPaths(pathList);
+//        console.log("CollecteInfos: ", collectedInfos);
+//        collectedInfos.forEach(function(info) {
+//          console.log("ELEM:")
+//          printCollectedInfo(info);
+//        });
+//        var patternString = ""//formPattern(nodeList, pathList);
          
         //writeToStatus("Pattern: " + patternString);
         //var queryString = "Match p = " + patternString + " return p;";

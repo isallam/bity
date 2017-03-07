@@ -2,6 +2,7 @@ package com.objy.se.query.util;
 
 import com.objectivity.backend.helper.ObjectHelper;
 import com.objy.data.*;
+import java.math.BigInteger;
 
 /**
  * Created by ibrahim on 10/6/16.
@@ -29,13 +30,14 @@ public class QueryObjectHelper extends ObjectHelper {
             } else if(type == LogicalType.GUID) {
                 tObj = getGuid(persistentValue);
             } else if(type == LogicalType.INTEGER) {
-                boolean needBigInt = false;
-                if(spec.getEncoding() == Encoding.Integer.UNSIGNED.getValue() && spec.getStorage() == com.objy.data.Storage.Integer.B64.getValue()) {
-                    needBigInt = true;
+                if(spec.getEncoding() == Encoding.Integer.UNSIGNED.getValue() && 
+                        spec.getStorage() == com.objy.data.Storage.Integer.B64.getValue()) {
+                    tObj = getBigInteger(persistentValue);
                 }
-
-                tObj = getInteger(persistentValue, needBigInt);
-            } else if(type == LogicalType.REAL && spec.getStorage() == Storage.Real.B32.getValue()) {
+                else {
+                  tObj = getInteger(persistentValue);
+                }
+           } else if(type == LogicalType.REAL && spec.getStorage() == Storage.Real.B32.getValue()) {
                 tObj = getFloat(persistentValue);
             } else if(type == LogicalType.REAL && spec.getStorage() == Storage.Real.B64.getValue()) {
                 tObj = getDouble(persistentValue);
@@ -77,4 +79,11 @@ public class QueryObjectHelper extends ObjectHelper {
       return value;
     }
 
+    public static Long getInteger(Variable var) {
+      return Long.valueOf(var.longValue());
+    }
+
+    public static BigInteger getBigInteger(Variable var) {
+      return var.unsignedLongValue();
+    }
 }

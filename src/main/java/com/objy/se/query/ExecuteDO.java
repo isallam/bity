@@ -61,7 +61,7 @@ public class ExecuteDO extends QueryInterface {
 					//System.out.println("... Node type: " + resultVarType.name());
 					if (resultVarType.equals(LogicalType.INSTANCE)) {
 						Instance instance = resultVar.instanceValue();
-
+                        //System.out.println("RESULT: " + resultVar.jsonValue());
 						ObjyObject objyObject = utils.handleInstance(instance);
 
 						// dump the results attributes...
