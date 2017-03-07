@@ -703,14 +703,14 @@ var DoQuery = {
     
     /****
      *
-     * @param controller
+     * 
      */
-    extractPatternFromNodes: function (controller) {
+    extractPatternFromNodes: function () {
         // // TBD... this function can be written better!!!!! IS:
          this.inSimilarityState = true;
          
          var nodeList = {};
-         controller.selectedNodes.forEach(function (n) {
+         this.selectedNodes.forEach(function (n) {
             var data = n.data;
             nodeList[n.id] = {id: n.id, className: n.label, attributes: data};
         });
@@ -731,8 +731,30 @@ var DoQuery = {
         
         return collectedInfos;
     },
+    
+    doPatternSimilarity : function(collectedInfo) {
+      var doStatement = null;
+      
+      while(collectedInfo != null) {
+        var doComponent = costructDoComponent(collectedInfo)
+        if (doStatement === null)
+          doStatement = "Match p = " + doComponent;
+        else
+          doStatement = doStatement + "-->" + doComponent;
+        
+        collectedInfo = collectedInfo.next;
+      }
+      
+      if (doStatement !== null)
+        doStatement = doStatement + " return p;";
+      
+      console.log("DO: ", doStatement);
+//      execute('graphContainer', doStatement);
+      getQueryBox().value = doStatement;
 
-     prepGraphForSimilarity: function (config) {
+    },
+    
+    prepGraphForSimilarity: function (config) {
     
          var gc1 = document.getElementById(config.element);
          var gc1Header = document.getElementById(config.element + "-header")

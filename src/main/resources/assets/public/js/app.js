@@ -169,7 +169,7 @@ function doPatternSimilarity() {
 
 	Utils.eraseElem('similar-nodes-pattern-btn')
     DoQuery.lasso.deactivate();
-	var collectedInfos = DoQuery.extractPatternFromNodes(DoQuery)
+	var collectedInfos = DoQuery.extractPatternFromNodes()
 
     var configDiv = document.getElementById('pattern-config-content-internal');
     var createdElements = createPatternGuiNodes(collectedInfos[0], configDiv);
@@ -179,12 +179,14 @@ function doPatternSimilarity() {
 
     document.getElementById('done-pattern-config').onclick = function() {  
       modal.style.display = 'none';
-      console.log('... we will search for pattern...');
       // remove the created elements.
       cleanupPatternGuiElements(createdElements);
+      console.log('... we will search for pattern...');
+      // For now we'll just use the first pattern
+      // collectedInfos[0] contain the configured information to construct the
+      // DO query.
+      DoQuery.doPatternSimilarity(collectedInfos[0])
     };  
-    // TBD... get the resulted output from configuring the pattern and execute
-    //        the DO query.
 }
 
 

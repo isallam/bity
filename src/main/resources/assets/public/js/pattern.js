@@ -224,30 +224,68 @@ function processPaths(pathList)
   return collectedInfos;
 }
 
-
+/****
+ * Public function to get information from the configured 'node' of the collectedInfo
+ * and construct a DO component that is used int he graph query to represet the 
+ * type and any parameters.
+ * 
+ * @param {type} collectedInfo
+ * @returns {String}
+ */
+function costructDoComponent(collectedInfo)
+{
+  var doComponent = "()";
+  var infoNode = collectedInfo.node;
+  if (collectedInfo.node != null)
+  {
+    if (infoNode.class == "")
+      doComponent = "()";
+    else
+      doComponent = "(:" + infoNode.class + ")"
+  }
+  return doComponent;
+}
 /************************************
  * GUI functions for pattern configuration...
  ************************************/
 
-function createAttrGuiElement(attrName, attrValue, parentElem) 
+function createAttrGuiElement(attrName, classAttributes) 
 {
   var tr = document.createElement('tr');
   var tdName = document.createElement('td');
   var tdNameText = document.createTextNode(attrName);
   tdName.appendChild(tdNameText);
   tr.appendChild(tdName);
-
+  var attrValue = classAttributes[attrName];
+  
   if (typeof attrValue === 'object')
   {
     var tdValueMin = document.createElement('td');
+    tdValueMin.attrs = classAttributes;
+    tdValueMin.attrName = attrName;
     var tdValueMinText = document.createTextNode(attrValue.min);
-    // make the value editable.
+    tdValueMinText.onchange = function() {
+      var attrs = this.parentElement.attrs;
+      var attrName = this.parentElement.attrName;
+      attrs[attrName].min = this.value;
+    }
+    tdValueMin.onchange = function() {
+      console.log("tdValueMin change", this.value);
+    }
+   // make the value editable.
     tdValueMin.contentEditable = true;
     tdValueMin.appendChild(tdValueMinText);
-    tr.appendChild(tdValueMin);
+     tr.appendChild(tdValueMin);
 
     var tdValueMax = document.createElement('td');
+    tdValueMax.attrs = classAttributes;
+    tdValueMax.attrName = attrName;
     var tdValueMaxText = document.createTextNode(attrValue.max);
+    tdValueMaxText.onchange = function() {
+      var attrs = this.parentElement.attrs;
+      var attrName = this.parentElement.attrName;
+      attrs[attrName].max = this.value;
+    }
     tdValueMax.contentEditable = true;
     tdValueMax.appendChild(tdValueMaxText);
     tr.appendChild(tdValueMax);
@@ -255,16 +293,20 @@ function createAttrGuiElement(attrName, attrValue, parentElem)
   }
   else {
     var tdValue = document.createElement('td');
+    tdValue.attrs = classAttributes;
+    tdValue.attrName = attrName;
     var tdValueText = document.createTextNode(attrValue);
-
+    tdValueText.onchange = function() {
+      var attrs = this.parentElement.attrs;
+      var attrName = this.parentElement.attrName;
+      attrs[attrName] = this.value;
+    }
     // make the value editable.
     tdValue.contentEditable = true;
-  
     tdValue.appendChild(tdValueText);
     tr.appendChild(tdValue);
   }
-  parentElem.appendChild(tr);
-  
+  return tr;
 }
 
 function createAttributesTableGuiElement(id, collectedInfo)
@@ -276,7 +318,8 @@ function createAttributesTableGuiElement(id, collectedInfo)
   var classAttributes = collectedInfo.node.attributes;
   for (var prop in classAttributes) {
     //console.log(">", prop, " : ", classAttributes[prop])
-    createAttrGuiElement(prop, classAttributes[prop], attributesTable)
+    var tableRow = createAttrGuiElement(prop, classAttributes);
+    attributesTable.appendChild(tableRow);
   }
   return attributesTable;
 }
@@ -297,6 +340,9 @@ function createTypeGuiElement(id, collectedInfo)
     element.readOnly = true;
     element.ondblclick = function() {
       this.readOnly = false;
+    }
+    element.onchange = function() {
+      this.payload.node.class = this.value;
     }
     element.onclick = function() {
       this.readOnly = true;  // make sure we don't allow editing of the text
@@ -326,7 +372,7 @@ function createPatternGuiNodes(collectedInfo, parentDiv)
 
   var classAttributesConfig = document.getElementById('class-attributes-config');
 
-  while (true) 
+  while (collectedInfo != null) 
   {
     //Create an input type dynamically.
     var element = createTypeGuiElement(idBase + count, collectedInfo)
@@ -351,9 +397,6 @@ function createPatternGuiNodes(collectedInfo, parentDiv)
       //Append the element to the Div
       parentDiv.appendChild(arrow);
     }
-    
-    if (collectedInfo.next == null)
-      break;
     
     collectedInfo = collectedInfo.next;
     count++;
