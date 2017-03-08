@@ -47,9 +47,11 @@ public class ExecuteDO extends QueryInterface {
 			System.out.println(results.getSpecification().getLogicalType().toString());
 			if (results.getSpecification().getLogicalType() == LogicalType.SEQUENCE) {
 				// we got sequence of results.
+//                System.out.println("resultsJSON: " + results.jsonValue());
+//                Sequence sequence = results.sequenceValue();
 				Iterator<Variable> resultItr = results.sequenceValue().iterator();
+                System.out.println("Sequence resultItr hasNext(): " + resultItr.hasNext());
 				int numResults = 0;
-
 				Variable resultVar = null;
 				LogicalType resultVarType = null;
 				HashMap<String, Integer> sentNodeData = new HashMap<String, Integer>();
@@ -58,14 +60,14 @@ public class ExecuteDO extends QueryInterface {
 				while (numResults < querySpec.maxResult && resultItr.hasNext()) {
 					resultVar = resultItr.next();
 					resultVarType = resultVar.getSpecification().getLogicalType();
-					//System.out.println("... Node type: " + resultVarType.name());
+//					System.out.println("... Node type: " + resultVarType.name());
 					if (resultVarType.equals(LogicalType.INSTANCE)) {
 						Instance instance = resultVar.instanceValue();
                         //System.out.println("RESULT: " + resultVar.jsonValue());
 						ObjyObject objyObject = utils.handleInstance(instance);
 
 						// dump the results attributes...
-						//System.out.println("... attributes: " + objyObject.attributes.toString());
+//						System.out.println("... attributes: " + objyObject.attributes.toString());
 						if (objyObject.attributes.containsKey(Utils.PATH_ATTRIBUTE))
 						{
 							processPathResults(objyObject, sentNodeData, querySpec.verbose);

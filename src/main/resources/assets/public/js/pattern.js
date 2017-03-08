@@ -224,6 +224,62 @@ function processPaths(pathList)
   return collectedInfos;
 }
 
+/*****
+ * Helper function to allow us to use Length(LIST) for attributes that are lists
+ * 
+ * @param {type} attrName
+ * @returns {String}
+ */
+function getCorrectedAttrName(attrName)
+{
+  if (attrName === 'm_Inputs' || attrName === 'm_Outputs' || attrName === 'm_Transactions')
+    return "LENGTH(" + attrName + ")";
+  return attrName; 
+}
+
+/*****
+ * Internal function that construct the attributeList of a Do statment from
+ * the configured params.
+ * 
+ * @param {type} collectedInfo
+ * @returns {String}
+ */
+function constructDoAttributes(collectedInfo)
+{
+  var doAttributes = "";
+  var infoNode = collectedInfo.node;
+  for (var prop in infoNode.attributes)
+  {
+    var attrValue = infoNode.attributes[prop]
+    var attrName = prop;
+    
+    if (typeof attrValue === 'string' && attrValue === "")
+      continue;
+    
+    if (doAttributes !== "")
+      doAttributes = doAttributes + ' AND ';
+    
+    if (typeof attrValue === 'object') {
+      attrName = getCorrectedAttrName(attrName);
+      if (attrValue.min == attrValue.max) {
+        doAttributes = doAttributes + attrName + ' == ' + attrValue.min;
+      } else {
+        doAttributes = doAttributes + attrName + ' >= '+
+              attrValue.min + " AND " + attrName + ' <= ' + attrValue.max;
+      }
+    }
+    else {
+      if (typeof attrValue === 'string') {
+        attrValue = '"' + attrValue + '"';
+      }
+      doAttributes = doAttributes + attrName + ' == ' + attrValue;
+    }
+  }
+  if (doAttributes !== "") {
+    doAttributes = ' {' + doAttributes + '}';
+  }
+  return doAttributes;
+}
 /****
  * Public function to get information from the configured 'node' of the collectedInfo
  * and construct a DO component that is used int he graph query to represet the 
@@ -236,12 +292,14 @@ function costructDoComponent(collectedInfo)
 {
   var doComponent = "()";
   var infoNode = collectedInfo.node;
-  if (collectedInfo.node != null)
+  if (infoNode != null)
   {
     if (infoNode.class == "")
       doComponent = "()";
-    else
-      doComponent = "(:" + infoNode.class + ")"
+    else {
+      var doAttributes = constructDoAttributes(collectedInfo);
+      doComponent = "(:" + infoNode.class + doAttributes + ")"
+    }
   }
   return doComponent;
 }
@@ -249,79 +307,82 @@ function costructDoComponent(collectedInfo)
  * GUI functions for pattern configuration...
  ************************************/
 
-function createAttrGuiElement(attrName, classAttributes) 
+function createAttrDivGuiElement(attrName, classAttributes) 
 {
-  var tr = document.createElement('tr');
-  var tdName = document.createElement('td');
-  var tdNameText = document.createTextNode(attrName);
-  tdName.appendChild(tdNameText);
+  var tr = document.createElement('div');
+  var tdName = document.createElement('label');
+  tdName.innerHTML = attrName;
   tr.appendChild(tdName);
+
   var attrValue = classAttributes[attrName];
   
   if (typeof attrValue === 'object')
   {
-    var tdValueMin = document.createElement('td');
-    tdValueMin.attrs = classAttributes;
-    tdValueMin.attrName = attrName;
-    var tdValueMinText = document.createTextNode(attrValue.min);
-    tdValueMinText.onchange = function() {
-      var attrs = this.parentElement.attrs;
-      var attrName = this.parentElement.attrName;
-      attrs[attrName].min = this.value;
-    }
-    tdValueMin.onchange = function() {
-      console.log("tdValueMin change", this.value);
-    }
-   // make the value editable.
-    tdValueMin.contentEditable = true;
-    tdValueMin.appendChild(tdValueMinText);
-     tr.appendChild(tdValueMin);
+    var tdValueMin = document.createElement('input');
+    var tdValueMax = document.createElement('input');
 
-    var tdValueMax = document.createElement('td');
-    tdValueMax.attrs = classAttributes;
-    tdValueMax.attrName = attrName;
-    var tdValueMaxText = document.createTextNode(attrValue.max);
-    tdValueMaxText.onchange = function() {
-      var attrs = this.parentElement.attrs;
-      var attrName = this.parentElement.attrName;
-      attrs[attrName].max = this.value;
+    tdValueMin.value = attrValue.min;
+    tdValueMin._attrs = classAttributes;
+    tdValueMin._attrName = attrName;
+    tdValueMin._sibling = tdValueMax;
+    tdValueMin.onchange = function() {
+      var attrs = this._attrs;
+      var attrName = this._attrName;
+      attrs[attrName].min = this.value;
+      if (Number(this.value) > Number(this._sibling.value)) {
+        attrs[attrName].max = this.value;
+        this._sibling.value = this.value;
+      }
     }
-    tdValueMax.contentEditable = true;
-    tdValueMax.appendChild(tdValueMaxText);
-    tr.appendChild(tdValueMax);
     
+    tr.appendChild(tdValueMin);
+
+    tdValueMax.value = attrValue.max;
+    tdValueMax._attrs = classAttributes;
+    tdValueMax._attrName = attrName;
+    tdValueMax._sibling = tdValueMin;
+    tdValueMax.onchange = function() {
+      var attrs = this._attrs;
+      var attrName = this._attrName;
+      attrs[attrName].max = this.value;
+      if (Number(this.value) < Number(this._sibling.value)) {
+        attrs[attrName].min = this.value;
+        this._sibling.value = this.value;
+      }
+    }
+    tr.appendChild(tdValueMax);
+
   }
   else {
-    var tdValue = document.createElement('td');
-    tdValue.attrs = classAttributes;
-    tdValue.attrName = attrName;
-    var tdValueText = document.createTextNode(attrValue);
-    tdValueText.onchange = function() {
-      var attrs = this.parentElement.attrs;
-      var attrName = this.parentElement.attrName;
+    var tdValue = document.createElement('input');
+//    tdValue.style.height = '20px';
+    tdValue.value = attrValue;
+    tdValue._attrs = classAttributes;
+    tdValue._attrName = attrName;
+    tdValue.onchange = function() {
+      var attrs = this._attrs;
+      var attrName = this._attrName;
       attrs[attrName] = this.value;
     }
-    // make the value editable.
-    tdValue.contentEditable = true;
-    tdValue.appendChild(tdValueText);
     tr.appendChild(tdValue);
+
   }
   return tr;
 }
 
-function createAttributesTableGuiElement(id, collectedInfo)
+function createAttributesDivGuiElement(id, collectedInfo)
 {
-  var attributesTable = document.createElement("table");
-  attributesTable.id = id;
-  attributesTable.style.display = 'none';
+  var attributesDiv = document.createElement("div");
+  attributesDiv.id = id;
+  attributesDiv.style.display = 'none';
 //  var classAttributes = collectedInfo.objects[0].attributes;
   var classAttributes = collectedInfo.node.attributes;
   for (var prop in classAttributes) {
     //console.log(">", prop, " : ", classAttributes[prop])
-    var tableRow = createAttrGuiElement(prop, classAttributes);
-    attributesTable.appendChild(tableRow);
+    var attrDiv = createAttrDivGuiElement(prop, classAttributes);
+    attributesDiv.appendChild(attrDiv);
   }
-  return attributesTable;
+  return attributesDiv;
 }
 
 function createTypeGuiElement(id, collectedInfo)
@@ -342,7 +403,7 @@ function createTypeGuiElement(id, collectedInfo)
       this.readOnly = false;
     }
     element.onchange = function() {
-      this.payload.node.class = this.value;
+      this.payload.node.class = this.value.trim();
     }
     element.onclick = function() {
       this.readOnly = true;  // make sure we don't allow editing of the text
@@ -381,9 +442,9 @@ function createPatternGuiNodes(collectedInfo, parentDiv)
     parentDiv.appendChild(element);
 
     // create the attribute holder.
-    var attributesTable = createAttributesTableGuiElement(element.id + attrsPostfix, collectedInfo)
-    elements.push(attributesTable);
-    classAttributesConfig.appendChild(attributesTable);
+    var attributesDiv = createAttributesDivGuiElement(element.id + attrsPostfix, collectedInfo)
+    elements.push(attributesDiv);
+    classAttributesConfig.appendChild(attributesDiv);
 
     if (collectedInfo.next != null)
     {
