@@ -119,33 +119,4 @@ public class DatabaseManager {
 		DatabaseManager.SharedInstance = null;
 	}
 
-//	public Iterator<Variable> getVertices(String typeName) {
-//		// make sure we have the type.
-//		com.objy.data.Class theType = com.objy.data.Class.lookupClass(typeName);
-//		if (theType != null)
-//		{
-//			Statement doStatement = new Statement(LanguageRegistry.lookupLanguage("DO"), 
-//					"from " + typeName + " return *");
-//			Variable results = doStatement.execute();
-//			Iterator<Variable> resultItr = results.sequenceValue().iterator();
-//			return resultItr;
-//		}
-//		DatabaseManager.getLogger().error("Type: '" + typeName + "' is not found.");
-//		return null;
-//	}
-
-	public int getEdgeCount(Instance vertex) {
-		Statement doStatement = new Statement(LanguageRegistry.lookupLanguage("DO"),
-				"Match (" + vertex.getInstanceAsLong() +")-[]->() return count" );
-		Variable results = doStatement.execute();
-		return results.intValue();
-	}
-
-	public Iterator<Variable> getNeighbors(Instance vertex) {
-		Statement doStatement = new Statement(LanguageRegistry.lookupLanguage("DO"),
-				"Match (" + vertex.getInstanceAsLong() +")-[]->(b) return b" );
-		Variable results = doStatement.execute();
-		return results.sequenceValue().iterator();
-	}
-
 }

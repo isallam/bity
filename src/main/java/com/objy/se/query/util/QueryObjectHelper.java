@@ -23,8 +23,6 @@ public class QueryObjectHelper extends ObjectHelper {
                 tObj = getDateTime(persistentValue);
             } else if(type == LogicalType.TIME) {
                 tObj = getTime(persistentValue);
-            } else if(type == LogicalType.DATE_TIME_OFFSET) {
-                tObj = getDateTimeOffset(persistentValue);
             } else if(type == LogicalType.INTERVAL) {
                 tObj = getInterval(persistentValue);
             } else if(type == LogicalType.GUID) {
