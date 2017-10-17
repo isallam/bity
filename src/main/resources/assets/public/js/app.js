@@ -6,9 +6,9 @@
 
 var querys = {
   'Q01' : 'from Block where m_Id==99 return *',
-  'Q02' : 'MATCH p = (:Block{m_Id==\"0\"})-[:m_Transactions]->(:Transaction)' +
+  'Q02' : 'MATCH p = (:Block{m_Id==0})-[:m_Transactions]->(:Transaction)' +
             '-[:m_Outputs]->(:Output)-->(:Address) RETURN p',
-  'Q03' : 'MATCH p = (:Block{m_Id=="0"})-->(:Transaction)-->(:Output)' +
+  'Q03' : 'MATCH p = (:Block{m_Id==0})-->(:Transaction)-->(:Output)' +
             '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
             '-->() RETURN p',
   'Q04' : 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
